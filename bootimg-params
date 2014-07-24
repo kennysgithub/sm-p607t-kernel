@@ -1,0 +1,17 @@
+
+		BOARD_KERNEL_BASE=0x00000000
+		BOARD_KERNEL_PAGESIZE=2048
+		BOARD_KERNEL_TAGS_OFFSET=0x01E00000
+		BOARD_RAMDISK_OFFSET=0x02000000
+		BOARD_KERNEL_CMDLINE="console=ttyHSL0,115200,n8 androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3"
+		#BOARD_KERNEL_CMDLINE="console=ttyHSL0,115200,n8 androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3"
+
+	$MKBOOTIMGTOOL --kernel $KERNEL_ZIMG \
+			--ramdisk $PRODUCT_OUT/ramdisk.img \
+			--output $PRODUCT_OUT/boot.img \
+			--cmdline "$BOARD_KERNEL_CMDLINE" \
+			--base $BOARD_KERNEL_BASE \
+			--pagesize $BOARD_KERNEL_PAGESIZE \
+			--ramdisk_offset $BOARD_RAMDISK_OFFSET \
+			--tags_offset $BOARD_KERNEL_TAGS_OFFSET \
+			--dt $INSTALLED_DTIMAGE_TARGET
