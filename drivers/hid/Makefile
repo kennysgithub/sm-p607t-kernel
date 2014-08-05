@@ -7,6 +7,8 @@ ifdef CONFIG_DEBUG_FS
 	hid-objs		+= hid-debug.o
 endif
 
+CFLAGS_hid-multitouch.o	+= -Wno-array-bounds
+
 obj-$(CONFIG_HID)		+= hid.o
 obj-$(CONFIG_UHID)		+= uhid.o
 
