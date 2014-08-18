@@ -2752,7 +2752,7 @@ static int mdss_mdp_overlay_on(struct msm_fb_data_type *mfd)
 	if (mfd->key != MFD_KEY)
 		return -EINVAL;
 
-	pr_info("%s: ++ \n",__func__);
+	pr_debug("%s: ++ \n",__func__);
 	mdp5_data = mfd_to_mdp5_data(mfd);
 	if (!mdp5_data)
 		return -EINVAL;
@@ -2784,7 +2784,7 @@ static int mdss_mdp_overlay_on(struct msm_fb_data_type *mfd)
 		mdss_mdp_overlay_off(mfd);
 	}
 
-	pr_info("%s: -- \n",__func__);
+	pr_debug("%s: -- \n",__func__);
 
 	return rc;
 }

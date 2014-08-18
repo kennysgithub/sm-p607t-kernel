@@ -557,7 +557,7 @@ void mdss_edp_set_backlight(struct mdss_panel_data *pdata, u32 bl_level)
 
 	mutex_unlock(&brightness_mutex);
 
-	pr_info("%s bl_level : %d duty_level : %d duty_period : %d  duty_ratio : %d",
+	pr_debug("%s bl_level : %d duty_level : %d duty_period : %d  duty_ratio : %d",
 				__func__, bl_level, duty_level, duty_period,
 				duty_ratio_table[bl_level]);
 }
@@ -668,7 +668,7 @@ int mdss_edp_phy_pll_ready(struct mdss_edp_drv_pdata *ep)
 		usleep(100);
 	}
 
-	pr_info("%s: PLL cnt=%d status=%x\n", __func__, cnt, (int)status);
+	pr_debug("%s: PLL cnt=%d status=%x\n", __func__, cnt, (int)status);
 
 	if (cnt <= 0) {
 		pr_err("%s: PLL NOT ready\n", __func__);
@@ -889,7 +889,7 @@ int mdss_edp_on(struct mdss_panel_data *pdata)
 	edp_drv = container_of(pdata, struct mdss_edp_drv_pdata,
 			panel_data);
 
-	pr_info("%s:+, cont_splash=%d\n", __func__, edp_drv->cont_splash);
+	pr_debug("%s:+, cont_splash=%d\n", __func__, edp_drv->cont_splash);
 
 	mdss_mdp_clk_ctrl(MDP_BLOCK_POWER_ON, false);
 
@@ -965,7 +965,7 @@ int mdss_edp_on(struct mdss_panel_data *pdata)
 
 	edp_drv->cont_splash = 0;
 
-	pr_info("%s:- %s\n", __func__, eeprom_version);
+	pr_debug("%s:- %s\n", __func__, eeprom_version);
 	return ret;
 }
 
@@ -987,7 +987,7 @@ int mdss_edp_off(struct mdss_panel_data *pdata)
 		pr_err("%s: Invalid input data\n", __func__);
 		return -EINVAL;
 	}
-	pr_info("%s:+, cont_splash=%d\n", __func__, edp_drv->cont_splash);
+	pr_debug("%s:+, cont_splash=%d\n", __func__, edp_drv->cont_splash);
 
 	INIT_COMPLETION(edp_drv->idle_comp);
 	mdss_edp_state_ctrl(edp_drv, ST_PUSH_IDLE);
@@ -1032,7 +1032,7 @@ int mdss_edp_off(struct mdss_panel_data *pdata)
 	qpnp_pin_config(edp_drv->gpio_panel_en, &LCD_EN_PM_GPIO_SLEEP);
 #endif
 	msleep(100); /* NDRA needs some delay after shutdown power */
-	pr_info("%s:- %s\n", __func__, eeprom_version);
+	pr_debug("%s:- %s\n", __func__, eeprom_version);
 
 	return 0;
 }
@@ -1067,7 +1067,7 @@ int mdss_edp_off_cont_splash(struct mdss_panel_data *pdata)
 
 	mdss_edp_regulator_off(edp_drv);
 
-	pr_info("%s:-\n", __func__);
+	pr_debug("%s:-\n", __func__);
 	return 0;
 }
 
@@ -1088,7 +1088,7 @@ static int mdss_edp_event_handler(struct mdss_panel_data *pdata,
 	mutex_lock(&edp_event_state_chagne);
 #endif
 
-	pr_info("%s: event=%d\n", __func__, event);
+	pr_debug("%s: event=%d\n", __func__, event);
 	switch (event) {
 	case MDSS_EVENT_RESET:
 #if defined(CONFIG_FB_MSM_EDP_SAMSUNG)
@@ -1374,14 +1374,14 @@ void edp_esd_work_func(struct work_struct *work)
 		return ;
 	}
 
-	pr_info("%s start", __func__);
+	pr_debug("%s start", __func__);
 
 	edp_drv->panel_data.event_handler(&edp_drv->panel_data, MDSS_EVENT_PANEL_OFF, NULL);
 	edp_drv->panel_data.event_handler(&edp_drv->panel_data, MDSS_EVENT_UNBLANK, NULL);
 
 	mdss_edp_set_backlight(&edp_drv->panel_data, edp_drv->current_bl);
 
-	pr_info("%s end", __func__);
+	pr_debug("%s end", __func__);
 }
 #endif
 static int count_recovery = 0;
@@ -1393,7 +1393,7 @@ static int edp_event_thread(void *data)
 
 	ep = (struct mdss_edp_drv_pdata *)data;
 
-	pr_info("%s: start\n", __func__);
+	pr_debug("%s: start\n", __func__);
 
 	while (1) {
 		wait_event(ep->event_q, (ep->event_pndx != ep->event_gndx));
@@ -1408,7 +1408,7 @@ static int edp_event_thread(void *data)
 			ep->event_gndx %= HPD_EVENT_MAX;
 			spin_unlock_irqrestore(&ep->event_lock, flag);
 
-			pr_info("%s: todo=%x\n", __func__, todo);
+			pr_debug("%s: todo=%x\n", __func__, todo);
 
 			if (todo == 0)
 				continue;

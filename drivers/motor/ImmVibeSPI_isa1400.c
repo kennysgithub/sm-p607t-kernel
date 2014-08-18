@@ -86,8 +86,13 @@ extern VibeStatus ImmVibeGetDeviceKernelParameter(VibeInt32 nDeviceIndex, VibeIn
 #define PWM_CLK_ENABLE
 #define PWM_CLK_DISABLE
 
+#ifdef DEBUG
 #define DEBUG_MSG(fmt, ...) \
 	printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)
+#else
+#define DEBUG_MSG(fmt, ...) \
+	do {;} while(0)
+#endif
 
 #define SYS_API_SET_PWM_FREQ(freq)
 #define SYS_API_SET_PWM_DUTY(index, ratio)	isa1400_clk_config(index, ratio)

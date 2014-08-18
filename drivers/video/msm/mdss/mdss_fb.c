@@ -867,12 +867,12 @@ void mdss_fb_set_backlight(struct msm_fb_data_type *mfd, u32 bkl_lvl)
 	if (((!mfd->panel_power_on && mfd->dcm_state != DCM_ENTER)
 		|| !mfd->bl_updated) && !IS_CALIB_MODE_BL(mfd)) {
 		mfd->unset_bl_level = bkl_lvl;
-		pr_info("[BL1] bkl_lvl (%d), bl_updated(%d), power(%d)\n",
+		pr_debug("[BL1] bkl_lvl (%d), bl_updated(%d), power(%d)\n",
 			bkl_lvl, mfd->bl_updated, mfd->panel_power_on);
 		return;
 	} else {
 		mfd->unset_bl_level = 0;
-		pr_info("[BL2] bkl_lvl (%d), bl_updated(%d)\n",
+		pr_debug("[BL2] bkl_lvl (%d), bl_updated(%d)\n",
 			bkl_lvl, mfd->bl_updated);
 	}
 
@@ -919,7 +919,7 @@ void mdss_fb_update_backlight(struct msm_fb_data_type *mfd)
 		if ((pdata) && (pdata->set_backlight)) {
 			mutex_lock(&mfd->bl_lock);
 			mfd->bl_level = mfd->unset_bl_level;
-			pr_info("mfd->bl_level (%d), bl_updated (%d)\n", 
+			pr_debug("mfd->bl_level (%d), bl_updated (%d)\n",
 				mfd->bl_level, mfd->bl_updated);
 			pdata->set_backlight(pdata, mfd->bl_level);
 			mfd->bl_level_old = mfd->unset_bl_level;
@@ -928,7 +928,7 @@ void mdss_fb_update_backlight(struct msm_fb_data_type *mfd)
 		}
 	} else {
 		if (fist_commit_flag)
-			pr_info("no update backlight!! unset bl (%d), bl updated (%d)\n", 
+			pr_debug("no update backlight!! unset bl (%d), bl updated (%d)\n",
 					mfd->unset_bl_level, mfd->bl_updated);
 	}
 }
@@ -939,7 +939,7 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)info->par;
 	int ret = 0;
 
-	pr_info("FB_NUM:%d, MDSS_FB_%s ++ \n", mfd->panel_info->fb_num,
+	pr_debug("FB_NUM:%d, MDSS_FB_%s ++ \n", mfd->panel_info->fb_num,
 			blank_mode? "BLANK": "UNBLANK");
 
 	if (!op_enable)
@@ -1010,8 +1010,8 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 	}
         mutex_unlock(&mfd->ctx_lock);
 	mutex_unlock(&mfd->power_state);
-	
-	pr_info("FB_NUM:%d, MDSS_FB_%s -- \n", mfd->panel_info->fb_num,
+
+	pr_debug("FB_NUM:%d, MDSS_FB_%s -- \n", mfd->panel_info->fb_num,
 			blank_mode ? "BLANK": "UNBLANK");
 
 	/* Notify listeners */

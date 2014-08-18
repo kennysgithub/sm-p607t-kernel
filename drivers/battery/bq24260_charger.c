@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  */
-#define DEBUG
+#undef DEBUG
 
 #include <linux/battery/sec_charger.h>
 
@@ -101,7 +101,7 @@ static int bq24260_get_charging_status(struct i2c_client *client)
 	u8 data = 0;
 
 	bq24260_i2c_read(client, BQ24260_STATUS, &data);
-	dev_info(&client->dev,
+	dev_dbg(&client->dev,
 		"%s : charger status(0x%02x)\n", __func__, data);
 
 	data = (data & 0x30);
@@ -130,7 +130,7 @@ static int bq24260_get_charging_health(struct i2c_client *client)
 	u8 data = 0;
 
 	bq24260_i2c_read(client, BQ24260_STATUS, &data);
-	dev_info(&client->dev,
+	dev_dbg(&client->dev,
 		"%s : charger status(0x%02x)\n", __func__, data);
 
 	if ((data & 0x30) == 0x30) {	/* check for fault */
@@ -344,14 +344,14 @@ static void bq24260_charger_otg_conrol(
 
 	if (charger->cable_type !=
 		POWER_SUPPLY_TYPE_OTG) {
-		dev_info(&client->dev, "%s : turn off OTG\n", __func__);
+		dev_dbg(&client->dev, "%s : turn off OTG\n", __func__);
 		/* turn off OTG */
 		bq24260_i2c_read(client, BQ24260_STATUS, &data);
 		data &= 0xbf;
 		bq24260_set_command(client,
 			BQ24260_STATUS, data);
 	} else {
-		dev_info(&client->dev, "%s : turn on OTG\n", __func__);
+		dev_dbg(&client->dev, "%s : turn on OTG\n", __func__);
 		/* turn on OTG */
 		bq24260_i2c_read(client, BQ24260_STATUS, &data);
 		data |= 0x40;
@@ -738,7 +738,7 @@ static void bq24260_chg_isr_work(struct work_struct *work)
 	union power_supply_propval val;
 	int full_check_type;
 
-	dev_info(&charger->client->dev,
+	dev_dbg(&charger->client->dev,
 		"%s: Charger Interrupt\n", __func__);
 
 	psy_do_property("battery", get,
