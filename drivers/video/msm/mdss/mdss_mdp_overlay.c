@@ -2655,7 +2655,7 @@ static int mdss_mdp_overlay_on(struct msm_fb_data_type *mfd)
 	if (mfd->key != MFD_KEY)
 		return -EINVAL;
 
-	pr_info("%s: ++ \n",__func__);
+	pr_debug("%s: ++ \n",__func__);
 	mdp5_data = mfd_to_mdp5_data(mfd);
 	if (!mdp5_data)
 		return -EINVAL;
@@ -2685,7 +2685,7 @@ static int mdss_mdp_overlay_on(struct msm_fb_data_type *mfd)
 		mdss_mdp_overlay_off(mfd);
 	}
 
-	pr_info("%s: -- \n",__func__);
+	pr_debug("%s: -- \n",__func__);
 
 	return rc;
 }
@@ -2771,7 +2771,7 @@ int mdss_panel_register_done(struct mdss_panel_data *pdata)
 	 * increasing ref_cnt to help balance clocks once done.
 	 */
 	if (pdata->panel_info.cont_splash_enabled && first_register) {
-		pr_info("%s ++ \n", __func__);
+		pr_debug("%s ++ \n", __func__);
 		mdss_mdp_clk_ctrl(MDP_BLOCK_POWER_ON, false);
 		mdss_mdp_footswitch_ctrl_splash(1);
 #ifdef CONFIG_FB_MSM_EDP_SAMSUNG

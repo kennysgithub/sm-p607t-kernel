@@ -10,7 +10,11 @@
  * GNU General Public License for more details.
  */
 
+#ifdef DEBUG
 #define pr_fmt(fmt) "MSM-CPP %s:%d " fmt, __func__, __LINE__
+#else
+#define pr_fmt(fmt) ""
+#endif
 
 
 #include <linux/delay.h>
@@ -1036,6 +1040,7 @@ static int cpp_close_node(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 
 	cpp_dev->cpp_open_cnt--;
 	if (cpp_dev->cpp_open_cnt == 0) {
+#ifdef DEBUG
 		pr_err("%s: irq_status: 0x%x\n", __func__,
 			msm_camera_io_r(cpp_dev->cpp_hw_base + 0x4));
 		pr_err("%s: DEBUG_SP: 0x%x\n", __func__,
@@ -1066,6 +1071,7 @@ static int cpp_close_node(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 			msm_camera_io_r(cpp_dev->cpp_hw_base + 0x88));
 		pr_err("%s: DEBUG_R1: 0x%x\n", __func__,
 			msm_camera_io_r(cpp_dev->cpp_hw_base + 0x8C));
+#endif
 		msm_camera_io_w(0x0, cpp_dev->base + MSM_CPP_MICRO_CLKEN_CTL);
 		cpp_deinit_mem(cpp_dev);
 		cpp_release_hardware(cpp_dev);

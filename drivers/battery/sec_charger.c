@@ -10,7 +10,7 @@
  * published by the Free Software Foundation.
  */
 
-#define DEBUG
+#undef DEBUG
 
 #include <linux/battery/sec_charger.h>
 #include <linux/of_gpio.h>

@@ -184,7 +184,7 @@ static int mxt_parse_dt(struct device *dev,
 	pdata->max_y = coords[3];
 	pdata->boot_address = MXT_BOOT_ADDRESS;
 	pdata->firmware_name = MXT_FIRMWARE_NAME;
-	
+
 	pdata->num_touchkey = ARRAY_SIZE(mxt_touchkey_data);
 	pdata->touchkey = mxt_touchkey_data;
 
@@ -205,7 +205,7 @@ static int mxt_parse_dt(struct device *dev,
 static int mxt_request_gpio(struct mxt_data *data)
 {
 	int ret;
-	printk(KERN_INFO "%s\n", __func__);
+	printk(KERN_DEBUG "%s\n", __func__);
 
 	ret = gpio_request(data->pdata->tsp_rst, "mxts,tsp_rst");
 	if (ret) {
@@ -279,7 +279,7 @@ static int mxt_power_onoff(struct mxt_data *data, bool enable)
 				__func__, ret);
 			return -EINVAL;
 		}
-		dev_info(&data->client->dev,
+		dev_dbg(&data->client->dev,
 			"%s: tsp 1.8V on is finished.\n", __func__);
 	} else {
 		if (regulator_is_enabled(reg_l10))
@@ -293,7 +293,7 @@ static int mxt_power_onoff(struct mxt_data *data, bool enable)
 				__func__, ret);
 			return -EINVAL;
 		}
-		dev_info(&data->client->dev,
+		dev_dbg(&data->client->dev,
 			"%s: tsp 1.8V off is finished.\n", __func__);
 	}
 
@@ -308,9 +308,9 @@ static int mxt_power_onoff(struct mxt_data *data, bool enable)
 				 __func__, data->pdata->tsp_en1);
 			return -EINVAL;
 		}
-	
+
 		msleep(1);
-	
+
 		ret = gpio_direction_output(data->pdata->tsp_en, enable);
 		if (ret) {
 			dev_err(&data->client->dev,
@@ -656,19 +656,19 @@ static int mxt_check_config_crc(struct mxt_fw_info *fw_info)
 	struct device *dev = &data->client->dev;
 	u32 current_crc;
 	int ret;
-	
+
 	/* Get config CRC from device */
 	ret = mxt_read_config_crc(data, &current_crc);
 	if (ret)
 		return ret;
-		
+
 	/* Check config CRC */
 	if (current_crc == fw_info->cfg_crc) {
-		dev_info(dev, "Skip writing backup and reset:[CRC 0x%06X]\n",
+		dev_dbg(dev, "Skip writing backup and reset:[CRC 0x%06X]\n",
 			current_crc);
 		return 0;
 	}
-	return 1;				
+	return 1;
 }
 
 
@@ -706,12 +706,12 @@ static int mxt_write_config(struct mxt_fw_info *fw_info)
 
 	/* Check config CRC */
 	if (current_crc == fw_info->cfg_crc) {
-		dev_info(dev, "Skip writing Config:[CRC 0x%06X]\n",
+		dev_dbg(dev, "Skip writing Config:[CRC 0x%06X]\n",
 			current_crc);
 		return 0;
 	}
 
-	dev_info(dev, "Writing Config:[CRC 0x%06X!=0x%06X]\n",
+	dev_dbg(dev, "Writing Config:[CRC 0x%06X!=0x%06X]\n",
 		current_crc, fw_info->cfg_crc);
 
 	/* Write config info */
@@ -803,7 +803,7 @@ static int set_charger_config(struct mxt_data *data)
 {
 	int error;
 	u8 value = 0;
-	dev_info(&data->client->dev, "Current state is %s",
+	dev_dbg(&data->client->dev, "Current state is %s",
 		data->charging_mode ? "Charging mode" : "Battery mode");
 
 /* if you need to change configuration depend on chager detection,
@@ -811,7 +811,7 @@ static int set_charger_config(struct mxt_data *data)
  */
 	if(data->chargin_status	!= data->charging_mode){
 	    if (data->charging_mode) {
-			dev_info(&data->client->dev, "T62 CHARGON Enable\n");
+			dev_dbg(&data->client->dev, "T62 CHARGON Enable\n");
 
 		    error = mxt_read_object(data, MXT_PROCG_NOISESUPPRESSION_T62,
 							    1, &value);
@@ -819,18 +819,18 @@ static int set_charger_config(struct mxt_data *data)
 			    dev_err(&data->client->dev, "%s: Error read T62 [%d]\n",
 					    __func__, error);
 		    } else {
-#if TSP_PATCH							
+#if TSP_PATCH
 			    if(data->patch.event_cnt)
-				    mxt_patch_test_event(data, 1); 			
+				    mxt_patch_test_event(data, 1);
 #else
 			    value |= 0x01;
 			    mxt_write_object(data, MXT_PROCG_NOISESUPPRESSION_T62,
 							    1, value);
 #endif
 		    }
-    
+
 	    } else {
-			dev_info(&data->client->dev, "T62 CHARGON Disable\n");
+			dev_dbg(&data->client->dev, "T62 CHARGON Disable\n");
 
 		    error = mxt_read_object(data, MXT_PROCG_NOISESUPPRESSION_T62,
 							    1, &value);
@@ -838,9 +838,9 @@ static int set_charger_config(struct mxt_data *data)
 			    dev_err(&data->client->dev, "%s: Error read T62 [%d]\n",
 					    __func__, error);
 		    } else {
-#if TSP_PATCH							
+#if TSP_PATCH
 			    if(data->patch.event_cnt)
-				    mxt_patch_test_event(data, 0); 			
+				    mxt_patch_test_event(data, 0);
 #else
 			    value &= ~(0x01);
 			    mxt_write_object(data, MXT_PROCG_NOISESUPPRESSION_T62,
@@ -853,7 +853,7 @@ static int set_charger_config(struct mxt_data *data)
 #ifdef WORKAROUND_THRESHOLD
 		if (data->setdata == 1 && system_rev < 11) {
 #if TSP_PATCH
-			dev_info(&data->client->dev, "RF Mode\n");
+			dev_dbg(&data->client->dev, "RF Mode\n");
 			if(data->patch.event_cnt)
 				mxt_patch_test_event(data, 3);
 #endif
@@ -885,7 +885,7 @@ static void charger_noti_dwork(struct work_struct *work)
 		return ;
 	}
 
-	dev_info(&data->client->dev, "%s mode\n",
+	dev_dbg(&data->client->dev, "%s mode\n",
 		data->charging_mode ? "charging" : "battery");
 
 	set_charger_config(data);
@@ -977,26 +977,26 @@ static void mxt_report_input_data(struct mxt_data *data)
 
 #if !defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
 		if (data->fingers[i].state == MXT_STATE_PRESS) {
-			dev_info(&data->client->dev, "[P][%d]: T[%d][%d] X[%d],Y[%d],W[%d],Z[%d]\n",
+			dev_dbg(&data->client->dev, "[P][%d]: T[%d][%d] X[%d],Y[%d],W[%d],Z[%d]\n",
 				i, data->fingers[i].type,
 				data->fingers[i].event,	data->fingers[i].x, data->fingers[i].y,
 				data->fingers[i].w, data->fingers[i].z);
 #if TSP_USE_SHAPETOUCH
-			pr_cont(",PALM[%d],COMP[%d],SUM[%d],AREA[%d]\n",
+			pr_debug(",PALM[%d],COMP[%d],SUM[%d],AREA[%d]\n",
 				data->palm, data->fingers[i].component,
 					data->sumsize, data->fingers[i].w);
 #else
-			pr_cont("\n");
+			pr_debug("\n");
 #endif
 		}
 #else
 		if (data->fingers[i].state == MXT_STATE_PRESS)
-			dev_info(&data->client->dev, "[P][%d]: T[%d][%d]\n",
+			dev_dbg(&data->client->dev, "[P][%d]: T[%d][%d]\n",
 				i, data->fingers[i].type,
 				data->fingers[i].event);
 #endif
 		else if (data->fingers[i].state == MXT_STATE_RELEASE)
-			dev_info(&data->client->dev, "[R][%d]: T[%d][%d] M[%d]\n",
+			dev_dbg(&data->client->dev, "[R][%d]: T[%d][%d] M[%d]\n",
 				i, data->fingers[i].type,
 				data->fingers[i].event,
 				data->fingers[i].mcount);
@@ -1034,7 +1034,7 @@ static void mxt_release_all_finger(struct mxt_data *data)
 	int i;
 	int count = 0;
 
-	dev_info(&data->client->dev, "%s\n", __func__);
+	dev_dbg(&data->client->dev, "%s\n", __func__);
 
 	for (i = 0; i < MXT_MAX_FINGER; i++) {
 		if (data->fingers[i].state == MXT_STATE_INACTIVE)
@@ -1052,7 +1052,7 @@ static void mxt_release_all_finger(struct mxt_data *data)
 #if TSP_HOVER_WORKAROUND
 static void mxt_current_calibration(struct mxt_data *data)
 {
-	dev_info(&data->client->dev, "%s\n", __func__);
+	dev_dbg(&data->client->dev, "%s\n", __func__);
 
 	mxt_write_object(data, MXT_SPT_SELFCAPHOVERCTECONFIG_T102, 1, 1);
 }
@@ -1062,10 +1062,10 @@ static void mxt_treat_T6_object(struct mxt_data *data,
 		struct mxt_message *message)
 {
 
-	dev_info(&data->client->dev, "%s\n", __func__);
+	dev_dbg(&data->client->dev, "%s\n", __func__);
 	/* Normal mode */
 	if (message->message[0] == 0x00) {
-		dev_info(&data->client->dev, "Normal mode\n");
+		dev_dbg(&data->client->dev, "Normal mode\n");
 #if TSP_INFORM_CHARGER
 		set_charger_config(data);
 #endif
@@ -1088,7 +1088,7 @@ static void mxt_treat_T6_object(struct mxt_data *data,
 		dev_err(&data->client->dev, "Config error\n");
 	/* Calibration */
 	if (message->message[0] & 0x10){
-		dev_info(&data->client->dev, "Calibration is on going !!\n");
+		dev_dbg(&data->client->dev, "Calibration is on going !!\n");
 	}
 	/* Signal error */
 	if (message->message[0] & 0x20)
@@ -1098,7 +1098,7 @@ static void mxt_treat_T6_object(struct mxt_data *data,
 		dev_err(&data->client->dev, "Overflow detected\n");
 	/* Reset */
 	if (message->message[0] & 0x80) {
-		dev_info(&data->client->dev, "Reset is ongoing\n");
+		dev_dbg(&data->client->dev, "Reset is ongoing\n");
 #if TSP_INFORM_CHARGER
 		data->chargin_status = 0xff;
 #endif
@@ -1142,7 +1142,7 @@ static void mxt_release_all_keys(struct mxt_data *data)
 				/* report all touch-key event */
 				input_report_key(data->input_dev,
 						data->pdata->touchkey[i].keycode, KEY_RELEASE);
-					dev_info(&data->client->dev, "%s:[TSP_KEY] %s R!\n",
+					dev_dbg(&data->client->dev, "%s:[TSP_KEY] %s R!\n",
 							__func__, data->pdata->touchkey[i].name);
 			}
 		}
@@ -1151,11 +1151,11 @@ static void mxt_release_all_keys(struct mxt_data *data)
 			/* menu key check*/
 			if (data->tsp_keystatus & TOUCH_KEY_MENU) {
 				if(data->ignore_menu_key) {
-					dev_info(&data->client->dev,
+					dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] Ignore menu R! by dummy key\n",
 								__func__);
 				} else if (data->ignore_menu_key_by_back) {
-					dev_info(&data->client->dev, 
+					dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] Ignore menu R! by back key\n",
 								 __func__);
 				} else {
@@ -1164,7 +1164,7 @@ static void mxt_release_all_keys(struct mxt_data *data)
 #else
 					input_report_key(data->input_dev, KEY_RECENT, KEY_RELEASE);
 #endif
-						dev_info(&data->client->dev,
+						dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] menu R!\n", __func__);
 #if MXT_TKEY_BOOSTER
 						mxt_tkey_set_dvfs_lock(data, !!KEY_RELEASE);
@@ -1176,16 +1176,16 @@ static void mxt_release_all_keys(struct mxt_data *data)
 			/* back key check*/
 			if (data->tsp_keystatus & TOUCH_KEY_BACK) {
 				if (data->ignore_back_key) {
-					dev_info(&data->client->dev,
+					dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] Ignore back R! by dummy key\n",
 								__func__);
 				} else if (data->ignore_back_key_by_menu) {
-					dev_info(&data->client->dev, 
+					dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] Ignore back R! by menu key\n",
-						 		__func__);
+								__func__);
 				} else {
 					input_report_key(data->input_dev, KEY_BACK, KEY_RELEASE);
-						dev_info(&data->client->dev,
+						dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] back R!\n", __func__);
 #if MXT_TKEY_BOOSTER
 						mxt_tkey_set_dvfs_lock(data, !!KEY_RELEASE);
@@ -1199,13 +1199,13 @@ static void mxt_release_all_keys(struct mxt_data *data)
 		data->tsp_keystatus = TOUCH_KEY_NULL;
 		if (data->ignore_menu_key) {
 		data->ignore_menu_key = false;
-		dev_info(&data->client->dev,
+		dev_dbg(&data->client->dev,
 		"%s: [TSP_KEY] ignore_menu_key Disable\n",
 		__func__);
 		}
 		if (data->ignore_back_key) {
 		data->ignore_back_key = false;
-		dev_info(&data->client->dev,
+		dev_dbg(&data->client->dev,
 		"%s: [TSP_KEY] ignore_back_key Disable\n",
 		__func__);
 		}
@@ -1234,7 +1234,7 @@ static void mxt_treat_T15_object(struct mxt_data *data,
 							data->pdata->touchkey[i].keycode,
 							key_state != 0 ? KEY_PRESS : KEY_RELEASE);
 					input_sync(data->input_dev);
-					dev_info(&data->client->dev, "%s: [TSP_KEY] %s %s\n",
+					dev_dbg(&data->client->dev, "%s: [TSP_KEY] %s %s\n",
 							__func__, data->pdata->touchkey[i].name,
 							key_state != 0 ? "P" : "R");
 				}
@@ -1248,27 +1248,27 @@ static void mxt_treat_T15_object(struct mxt_data *data,
 				key_state = input_message & TOUCH_KEY_MENU;
 
 				if(data->ignore_menu_key) {
-					dev_info(&data->client->dev,
+					dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] Ignore menu %s by dummy key\n",
 							__func__, key_state != 0 ? "P" : "R");
 					if(!(input_message & TOUCH_KEY_D_MENU)){
 							data->ignore_menu_key = false;
-							dev_info(&data->client->dev,
+							dev_dbg(&data->client->dev,
 								"%s: [TSP_KEY] ignore_menu_key Disable\n",
 								__func__);
 					}
 				} else if (data->ignore_menu_key_by_back) {
-					dev_info(&data->client->dev, 
+					dev_dbg(&data->client->dev,
 						"%s: [TSP_KEY] Ignore menu %s by back key\n",
 								 __func__, key_state != 0 ? "P" : "R");
 				} else {
-					
+
 #ifdef USE_MENU_TOUCHKEY
 					input_report_key(data->input_dev, KEY_MENU, key_state != 0 ? KEY_PRESS : KEY_RELEASE);
 #else
 					input_report_key(data->input_dev, KEY_RECENT, key_state != 0 ? KEY_PRESS : KEY_RELEASE);
-#endif					
-					dev_info(&data->client->dev, 
+#endif
+					dev_dbg(&data->client->dev,
 						"%s: [TSP_KEY] menu %s\n",
 								__func__, key_state != 0 ? "P" : "R");
 					if (key_state != 0)
@@ -1276,7 +1276,7 @@ static void mxt_treat_T15_object(struct mxt_data *data,
 					else {
 						if (input_message & TOUCH_KEY_D_MENU && !data->ignore_menu_key) {
 							data->ignore_menu_key = true;
-							dev_info(&data->client->dev,
+							dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] ignore_menu_key Enable\n",
 							__func__);
 						}
@@ -1293,22 +1293,22 @@ static void mxt_treat_T15_object(struct mxt_data *data,
 				key_state = input_message & TOUCH_KEY_BACK;
 
 				if (data->ignore_back_key) {
-					dev_info(&data->client->dev,
+					dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] Ignore back %s by dummy key\n",
 							__func__, key_state != 0 ? "P" : "R");
 					if(!(input_message & TOUCH_KEY_D_BACK)){
 							data->ignore_back_key = false;
-							dev_info(&data->client->dev,
+							dev_dbg(&data->client->dev,
 								"%s: [TSP_KEY] ignore_back_key Disable\n",
 								__func__);
 					}
 				} else if (data->ignore_back_key_by_menu) {
-					dev_info(&data->client->dev, 
+					dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] Ignore back %s by menu key\n",
 							 __func__, key_state != 0 ? "P" : "R");
 				} else {
 					input_report_key(data->input_dev, KEY_BACK, key_state != 0 ? KEY_PRESS : KEY_RELEASE);
-					dev_info(&data->client->dev, 
+					dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] back %s\n" ,
 							__func__, key_state != 0 ? "P" : "R");
 					if (key_state != 0)
@@ -1316,7 +1316,7 @@ static void mxt_treat_T15_object(struct mxt_data *data,
 					else {
 						if (input_message & TOUCH_KEY_D_BACK && !data->ignore_back_key) {
 							data->ignore_back_key = true;
-							dev_info(&data->client->dev,
+							dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] ignore_back_key Enable\n",
 							__func__);
 						}
@@ -1334,12 +1334,12 @@ static void mxt_treat_T15_object(struct mxt_data *data,
 
 				if((key_state != 0) && !data->ignore_menu_key && !(input_message & TOUCH_KEY_MENU)) {
 					data->ignore_menu_key = true;
-					dev_info(&data->client->dev,
+					dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] ignore_menu_key Enable\n",
 							__func__);
 				} else if (!key_state && data->ignore_menu_key && !(input_message & TOUCH_KEY_MENU)) {
 					data->ignore_menu_key = false;
-					dev_info(&data->client->dev,
+					dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] ignore_menu_key Disable\n",
 							__func__);
 				}
@@ -1351,12 +1351,12 @@ static void mxt_treat_T15_object(struct mxt_data *data,
 
 				if((key_state != 0) && !data->ignore_back_key && !(input_message & TOUCH_KEY_BACK)) {
 					data->ignore_back_key = true;
-					dev_info(&data->client->dev,
+					dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] ignore_back_key Enable\n",
 							__func__);
 				} else if (!key_state && data->ignore_back_key && !(input_message & TOUCH_KEY_BACK)) {
 					data->ignore_back_key = false;
-					dev_info(&data->client->dev,
+					dev_dbg(&data->client->dev,
 							"%s: [TSP_KEY] ignore_back_key Disable\n",
 							__func__);
 				}
@@ -1412,7 +1412,7 @@ static void mxt_treat_T9_object(struct mxt_data *data,
 		data->fingers[id].z = msg[5];
 		if (data->fingers[id].z == 0) {
 			data->fingers[id].z = 1;
-				dev_info(&data->client->dev, "%s : Pressure is 0!!\n", __func__);
+				dev_dbg(&data->client->dev, "%s : Pressure is 0!!\n", __func__);
 		}
 #if TSP_USE_SHAPETOUCH
 		data->fingers[id].component = msg[6];
@@ -1454,7 +1454,7 @@ static void mxt_treat_T9_object(struct mxt_data *data,
 				data->palm = 0;
 #endif
 			mxt_report_input_data(data);
-			dev_info(&data->client->dev, "%s: Only Suppress w/o Detect\n",
+			dev_dbg(&data->client->dev, "%s: Only Suppress w/o Detect\n",
 				__func__);
 			}
 	} else {
@@ -1471,14 +1471,14 @@ static void mxt_treat_T9_object(struct mxt_data *data,
 static void mxt_treat_T42_object(struct mxt_data *data,
 		struct mxt_message *message)
 {
-	dev_info(&data->client->dev, "%s\n", __func__);
+	dev_dbg(&data->client->dev, "%s\n", __func__);
 
 	if (message->message[0] & 0x01) {
 		/* Palm Press */
-		dev_info(&data->client->dev, "palm touch detected\n");
+		dev_dbg(&data->client->dev, "palm touch detected\n");
 	} else {
 		/* Palm release */
-		dev_info(&data->client->dev, "palm touch released\n");
+		dev_dbg(&data->client->dev, "palm touch released\n");
 	}
 }
 
@@ -1679,9 +1679,9 @@ static irqreturn_t mxt_irq_thread(int irq, void *ptr)
 				message.message[5], message.message[6]);
 			break;
 		}
-#if TSP_PATCH			
+#if TSP_PATCH
 		mxt_patch_message(data, &message);
-#endif	
+#endif
 	} while (!gpio_get_value(data->pdata->tsp_int));
 
 	if (data->finger_mask)
@@ -1834,24 +1834,24 @@ int mxt_verify_fw(struct mxt_fw_info *fw_info, const struct firmware *fw)
 			|| fw_info->hdr_len + fw_info->cfg_len
 				+ fw_info->fw_len != fw->size) {
 #if TSP_PATCH
-			struct patch_header* ppheader;		
-			u32 ppos = fw_info->hdr_len + fw_info->cfg_len + fw_info->fw_len;		
-			ppheader = (struct patch_header*)(fw->data + ppos);									
-			if(ppheader->magic == MXT_PATCH_MAGIC){					
+			struct patch_header* ppheader;
+			u32 ppos = fw_info->hdr_len + fw_info->cfg_len + fw_info->fw_len;
+			ppheader = (struct patch_header*)(fw->data + ppos);
+			if(ppheader->magic == MXT_PATCH_MAGIC){
 				dev_info(dev, "Firmware file has patch size: %d\n", ppheader->size);
-				if(ppheader->size){	
-					u8* patch=NULL;			
+				if(ppheader->size){
+					u8* patch=NULL;
 					if(!data->patch.patch){
 						kfree(data->patch.patch);
 					}
 					patch = kzalloc(ppheader->size, GFP_KERNEL);
 					memcpy(patch, (u8*)ppheader, ppheader->size);
-					data->patch.patch = patch;					
+					data->patch.patch = patch;
 				}
 			}
 			else
-#endif		
-			{								
+#endif
+			{
 			dev_err(dev, "Firmware file is invaild !!hdr size[%d] cfg,fw size[%d,%d] filesize[%d]\n",
 				fw_info->hdr_len, fw_info->cfg_len,
 				fw_info->fw_len, fw->size);
@@ -2113,7 +2113,7 @@ static int mxt_get_object_table(struct mxt_data *data)
 
 	/* Store maximum reportid */
 	data->max_reportid = reportid;
-	dev_info(&data->client->dev, "maXTouch: %d report ID\n",
+	dev_dbg(&data->client->dev, "maXTouch: %d report ID\n",
 			data->max_reportid);
 
 	return 0;
@@ -2205,7 +2205,7 @@ static int  mxt_rest_initialize(struct mxt_fw_info *fw_info)
 	struct device *dev = &data->client->dev;
 	int ret = 0;
 
-if( mxt_check_config_crc(fw_info)){	
+if( mxt_check_config_crc(fw_info)){
 
 	/* Restore memory and stop event handing */
 	ret = mxt_command_backup(data, MXT_DISALEEVT_VALUE);
@@ -2314,14 +2314,14 @@ static int mxt_input_open(struct input_dev *dev)
 	ret = qpnp_pin_config(data->pdata->tsp_rst,
 				&mxt_rst_set[MXT_PM_GPIO_STATE_WAKE]);
 	if (ret < 0)
-		dev_info(&data->client->dev,
+		dev_dbg(&data->client->dev,
 				"%s: wakeup rst config return: %d\n",
 				__func__, ret);
 
 	ret = qpnp_pin_config(data->pdata->tsp_int,
 				&mxt_int_set[MXT_PM_GPIO_STATE_WAKE]);
 	if (ret < 0)
-		dev_info(&data->client->dev,
+		dev_dbg(&data->client->dev,
 				"%s: wakeup int config return: %d\n",
 				__func__, ret);
 
@@ -2358,7 +2358,7 @@ static int mxt_input_open(struct input_dev *dev)
 		}
 #endif
 
-	dev_info(&data->client->dev, "%s\n", __func__);
+	dev_dbg(&data->client->dev, "%s\n", __func__);
 
 	return 0;
 
@@ -2376,18 +2376,18 @@ static void mxt_input_close(struct input_dev *dev)
 	ret = qpnp_pin_config(data->pdata->tsp_rst,
 				&mxt_rst_set[MXT_PM_GPIO_STATE_SLEEP]);
 	if (ret < 0)
-		dev_info(&data->client->dev,
+		dev_dbg(&data->client->dev,
 				"%s: sleep rst config return: %d\n",
 				__func__, ret);
 
 	ret = qpnp_pin_config(data->pdata->tsp_int,
 				&mxt_int_set[MXT_PM_GPIO_STATE_SLEEP]);
 	if (ret < 0)
-		dev_info(&data->client->dev,
+		dev_dbg(&data->client->dev,
 				"%s: sleep int config return: %d\n",
 				__func__, ret);
 
-	dev_info(&data->client->dev, "%s\n", __func__);
+	dev_dbg(&data->client->dev, "%s\n", __func__);
 }
 
 static int mxt_make_highchg(struct mxt_data *data)
@@ -2542,7 +2542,7 @@ static int mxt_flash_fw_on_probe(struct mxt_fw_info *fw_info)
 
 	if (data->info.version == fw_info->fw_ver
 			&& data->info.build == fw_info->build_ver) {
-		dev_info(dev, "Firmware version is same with in IC[IC:0x%x,0x%x / FW:0x%x,0x%x]\n",
+		dev_dbg(dev, "Firmware version is same with in IC[IC:0x%x,0x%x / FW:0x%x,0x%x]\n",
 				data->info.version, data->info.build,
 				fw_info->fw_ver, fw_info->build_ver);
 		goto out;
@@ -2551,14 +2551,14 @@ static int mxt_flash_fw_on_probe(struct mxt_fw_info *fw_info)
 #if defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
 	if (data->info.version > fw_info->fw_ver
 			&& data->info.build > fw_info->build_ver) {
-		dev_info(dev, "Binary firmware version lower than IC firmware version IC[IC:0x%x,0x%x / FW:0x%x,0x%x]\n",
+		dev_dbg(dev, "Binary firmware version lower than IC firmware version IC[IC:0x%x,0x%x / FW:0x%x,0x%x]\n",
 				data->info.version, data->info.build,
 				fw_info->fw_ver, fw_info->build_ver);
 		goto out;
 	}
 #endif
 
-	dev_info(dev, "Updating firmware from app-mode : IC:0x%x,0x%x =! FW:0x%x,0x%x\n",
+	dev_dbg(dev, "Updating firmware from app-mode : IC:0x%x,0x%x =! FW:0x%x,0x%x\n",
 			data->info.version, data->info.build,
 			fw_info->fw_ver, fw_info->build_ver);
 
@@ -2771,7 +2771,7 @@ static void mxt_init_power_on(struct work_struct *work)
 	struct mxt_data *data = container_of(work,
 						struct mxt_data, work_init_power_on.work);
 
-	dev_info(&data->client->dev, "%s\n", __func__);
+	dev_dbg(&data->client->dev, "%s\n", __func__);
 	mxt_start(data);
 }
 #endif
@@ -2793,7 +2793,7 @@ static int __devinit mxt_probe(struct i2c_client *client,
 	int i = 0;
 #endif
 
-	printk(KERN_ERR "%s", __func__);
+	printk(KERN_DEBUG "%s", __func__);
 
 	if (client->dev.of_node) {
 		pdata = devm_kzalloc(&client->dev,
@@ -2890,7 +2890,7 @@ static int __devinit mxt_probe(struct i2c_client *client,
 #endif
 
 #if TSP_USE_PALM_FLAG
-	input_set_abs_params(input_dev, ABS_MT_PALM, 
+	input_set_abs_params(input_dev, ABS_MT_PALM,
 				0, MXT_PALM_MAX, 0, 0);
 #endif
 

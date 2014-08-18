@@ -313,7 +313,7 @@ static int vdd_restriction_apply_voltage(struct rail *r, int level)
 	int ret = 0;
 
 	if (r->reg == NULL) {
-		pr_info("Do not have regulator handle:%s, can't apply vdd\n",
+		pr_err("Do not have regulator handle:%s, can't apply vdd\n",
 				r->name);
 		return -EFAULT;
 	}
@@ -842,7 +842,7 @@ static void __ref do_core_control(long temp)
 				continue;
 			if (cpus_offlined & BIT(i) && !cpu_online(i))
 				continue;
-			pr_info("%s: Set Offline: CPU%d Temp: %ld\n",
+			pr_debug("%s: Set Offline: CPU%d Temp: %ld\n",
 					KBUILD_MODNAME, i, temp);
 			ret = cpu_down(i);
 			if (ret)
@@ -858,7 +858,7 @@ static void __ref do_core_control(long temp)
 			if (!(cpus_offlined & BIT(i)))
 				continue;
 			cpus_offlined &= ~BIT(i);
-			pr_info("%s: Allow Online CPU%d Temp: %ld\n",
+			pr_debug("%s: Allow Online CPU%d Temp: %ld\n",
 					KBUILD_MODNAME, i, temp);
 			/*
 			 * If this core is already online, then bring up the
@@ -1195,15 +1195,15 @@ static void __ref msm_therm_temp_log(struct work_struct *work)
 
 	if(!tsens_get_max_sensor_num(&max_sensors))
 	{
-		pr_info( "Debug Temp for Sensor: ");
+		pr_debug( "Debug Temp for Sensor: ");
 		for(i=0;i<max_sensors;i++)
 		{
 			tsens_dev.sensor_num = i;
 			tsens_get_temp(&tsens_dev, &temp);
 			ret = sprintf(buffer + added, "(%d --- %ld)", i, temp);
-			added += ret;						
+			added += ret;
 		}
-		pr_info("%s", buffer);
+		pr_debug("%s", buffer);
 	}
 	schedule_delayed_work(&temp_log_work,
 				HZ*5); //For every 5 seconds log the temperature values of all the msm thermistors.
@@ -1270,7 +1270,7 @@ static int hotplug_notify(enum thermal_trip_type type, int temp, void *data)
 {
 	struct cpu_info *cpu_node = (struct cpu_info *)data;
 
-	pr_info("%s: %s reach temp threshold: %d\n", KBUILD_MODNAME,
+	pr_debug("%s: %s reach temp threshold: %d\n", KBUILD_MODNAME,
 			cpu_node->sensor_type, temp);
 
 	if (!(msm_thermal_info.core_control_mask & BIT(cpu_node->cpu)))
@@ -1582,10 +1582,10 @@ static int __ref set_enabled(const char *val, const struct kernel_param *kp)
 		hotplug_init();
 		freq_mitigation_init();
 	} else
-		pr_info("%s: no action for enabled = %d\n",
+		pr_debug("%s: no action for enabled = %d\n",
 			KBUILD_MODNAME, enabled);
 
-	pr_info("%s: enabled = %d\n", KBUILD_MODNAME, enabled);
+	pr_debug("%s: enabled = %d\n", KBUILD_MODNAME, enabled);
 
 	return ret;
 }
@@ -1903,7 +1903,7 @@ static int vdd_restriction_reg_init(struct platform_device *pdev)
 			if (freq_table_get)
 				ret = vdd_restriction_apply_freq(&rails[i], 0);
 			else
-				pr_info("%s:Defer vdd rstr freq init\n",
+				pr_debug("%s:Defer vdd rstr freq init\n",
 						__func__);
 		} else {
 			rails[i].reg = devm_regulator_get(&pdev->dev,

@@ -130,7 +130,7 @@ IMMVIBESPIAPI VibeStatus ImmVibeSPI_ForceOut_AmpDisable(VibeUInt8 nActuatorIndex
 {
     if (g_bAmpEnabled)
     {
-	printk("[VIBETONZ] %s \n",__func__);
+	pr_debug("[VIBETONZ] %s \n",__func__);
 	g_bAmpEnabled = false;
 	vib_isa1200_onoff(0);
 #if defined CONFIG_MACH_MATISSE3G_OPEN || defined CONFIG_SEC_MATISSELTE_COMMON
@@ -153,7 +153,7 @@ IMMVIBESPIAPI VibeStatus ImmVibeSPI_ForceOut_AmpEnable(VibeUInt8 nActuatorIndex)
 
     if (!g_bAmpEnabled)
     {
-	printk("[VIBETONZ] %s \n",__func__);
+	pr_debug("[VIBETONZ] %s \n",__func__);
 	g_bAmpEnabled = true;
 
 #if defined CONFIG_MACH_MATISSE3G_OPEN || defined CONFIG_SEC_MATISSELTE_COMMON

@@ -403,7 +403,7 @@ static bool sec_bat_check_vf_adc(struct sec_battery_info *battery)
 		(battery->check_adc_value >= battery->pdata->check_adc_min))
 		return true;
 	else {
-		dev_info(battery->dev, "%s: adc (%d)\n", __func__, battery->check_adc_value);
+		dev_dbg(battery->dev, "%s: adc (%d)\n", __func__, battery->check_adc_value);
 		return false;
 	}
 }
@@ -914,7 +914,7 @@ static bool sec_bat_temperature(
 			battery->pdata->temp_low_threshold_normal;
 	}
 
-	dev_info(battery->dev,
+	dev_dbg(battery->dev,
 		"%s: HLT(%d) HLR(%d) HT(%d), HR(%d), LT(%d), LR(%d)\n",
 		__func__, battery->temp_highlimit_threshold,
 		battery->temp_highlimit_recovery,
@@ -1110,7 +1110,7 @@ static void sec_bat_event_expired_timer_func(struct alarm *alarm)
 			event_termination_alarm);
 
 	battery->event &= (~battery->event_wait);
-	dev_info(battery->dev,
+	dev_dbg(battery->dev,
 		"%s: event expired (0x%x)\n", __func__, battery->event);
 }
 
@@ -1124,7 +1124,7 @@ static void sec_bat_event_set(
 	 * only if the event is one last event
 	 */
 	if (!enable && (battery->event == battery->event_wait)) {
-		dev_info(battery->dev,
+		dev_dbg(battery->dev,
 			"%s: ignore duplicated deactivation of same event\n",
 			__func__);
 		return;
@@ -1137,7 +1137,7 @@ static void sec_bat_event_set(
 		battery->event_wait = 0;
 		battery->event |= event;
 
-		dev_info(battery->dev,
+		dev_dbg(battery->dev,
 			"%s: event set (0x%x)\n", __func__, battery->event);
 	} else {
 		if (battery->event == 0) {
@@ -1150,7 +1150,7 @@ static void sec_bat_event_set(
 
 		sec_bat_event_program_alarm(battery,
 			battery->pdata->event_waiting_time);
-		dev_info(battery->dev,
+		dev_dbg(battery->dev,
 			"%s: start timer (curr 0x%x, wait 0x%x)\n",
 			__func__, battery->event, battery->event_wait);
 	}
@@ -1727,7 +1727,7 @@ static void sec_bat_get_battery_info(
 	battery->capacity = value.intval;
 #endif
 
-	dev_info(battery->dev,
+	dev_dbg(battery->dev,
 		"%s:Vnow(%dmV),Inow(%dmA),Imax(%dmA),SOC(%d%%),Tbat(%d)\n",
 		__func__,
 		battery->voltage_now, battery->current_now,
@@ -1994,7 +1994,7 @@ static void sec_bat_monitor_work(
 		battery->pdata->monitor_additional_check();
 
 continue_monitor:
-	dev_info(battery->dev,
+	dev_dbg(battery->dev,
 		"%s: Status(%s), Mode(%s), Health(%s), Cable(%d), Vendor(%s), siop_level(%d)\n",
 		__func__,
 		sec_bat_status_str[battery->status],
@@ -2002,7 +2002,7 @@ continue_monitor:
 		sec_bat_health_str[battery->health],
 		battery->cable_type, battery->pdata->vendor, battery->siop_level);
 
-	dev_info(battery->dev,
+	dev_dbg(battery->dev,
 			"%s: stability_test(%d), eng_not_full_status(%d) slate_mode(%d)\n",
 			__func__, battery->stability_test, battery->eng_not_full_status,
 			battery->slate_mode);
@@ -2010,7 +2010,7 @@ continue_monitor:
 #if defined(CONFIG_CHG_LLK_TEST)
 	if (battery->cable_type != POWER_SUPPLY_TYPE_BATTERY) {
 
-		dev_info(battery->dev,
+		dev_dbg(battery->dev,
 			"%s: @battery->capacity = (%d), battery->status= (%d)\n",
 			__func__, battery->capacity, battery->status);
 
@@ -2871,7 +2871,7 @@ static int sec_bat_set_property(struct power_supply *psy,
 					&& battery->wc_status)
 				current_cable_type = POWER_SUPPLY_TYPE_WIRELESS;
 		}
-		dev_info(battery->dev,
+		dev_dbg(battery->dev,
 				"%s: current_cable(%d), wc_status(%d), wire_status(%d)\n",
 				__func__, current_cable_type, battery->wc_status,
 				battery->wire_status);
@@ -3416,7 +3416,7 @@ static int batt_handle_notification(struct notifier_block *nb,
 				&& battery->wc_status && !battery->ps_status)
 			cable_type = POWER_SUPPLY_TYPE_WIRELESS;
 	}
-	dev_info(battery->dev,
+	dev_dbg(battery->dev,
 			"%s: current_cable(%d), wc_status(%d), wire_status(%d)\n",
 			__func__, cable_type, battery->wc_status,
 			battery->wire_status);
@@ -3444,7 +3444,7 @@ static int batt_handle_notification(struct notifier_block *nb,
 		}
 	}
 
-	pr_info("%s: CMD=%s, attached_dev=%d\n", __func__, cmd, attached_dev);
+	pr_debug("%s: CMD=%s, attached_dev=%d\n", __func__, cmd, attached_dev);
 
 	return 0;
 }

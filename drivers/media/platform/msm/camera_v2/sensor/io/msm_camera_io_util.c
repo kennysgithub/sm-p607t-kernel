@@ -176,7 +176,7 @@ int msm_cam_clk_enable(struct device *dev, struct msm_cam_clk_info *clk_info,
 				usleep_range(clk_info[i].delay * 1000,
 					(clk_info[i].delay * 1000) + 1000);
 			}
-			if (qctkd) printk (KERN_ERR "QCTKD: %s[%d:%d] Enable \n", clk_info[i].clk_name, clk_ptr[i]->prepare_count, clk_ptr[i]->count);
+			if (qctkd) pr_debug("QCTKD: %s[%d:%d] Enable \n", clk_info[i].clk_name, clk_ptr[i]->prepare_count, clk_ptr[i]->count);
 		}
 	} else {
 		for (i = num_clk - 1; i >= 0; i--) {
@@ -187,7 +187,7 @@ int msm_cam_clk_enable(struct device *dev, struct msm_cam_clk_info *clk_info,
 				clk_unprepare(clk_ptr[i]);
 				clk_put(clk_ptr[i]);
 			}
-			if (qctkd) printk (KERN_ERR "QCTKD: %s[%d:%d] Disable\n", clk_info[i].clk_name, clk_ptr[i]->prepare_count, clk_ptr[i]->count);
+			if (qctkd) pr_debug("QCTKD: %s[%d:%d] Disable\n", clk_info[i].clk_name, clk_ptr[i]->prepare_count, clk_ptr[i]->count);
 		}
 	}
 	return rc;

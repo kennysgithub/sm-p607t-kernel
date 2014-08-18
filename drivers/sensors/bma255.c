@@ -120,11 +120,11 @@ static int bma255_i2c_recovery(struct bma255_p *data)
 	};
 
 	if ((data->sda_gpio < 0) || (data->scl_gpio < 0)) {
-		pr_info("[SENSOR]: %s - no sda, scl gpio\n", __func__);
+		pr_err("[SENSOR]: %s - no sda, scl gpio\n", __func__);
 		return -1;
 	}
 
-	pr_info("[SENSOR] ################# %s #################\n", __func__);
+	pr_debug("[SENSOR] ################# %s #################\n", __func__);
 
 	ret = msm_gpiomux_write(data->sda_gpio, GPIOMUX_ACTIVE,
 			&recovery_config, &old_config[0]);
@@ -325,7 +325,7 @@ static int bma255_set_mode(struct bma255_p *data, unsigned char mode)
 		break;
 	}
 
-	pr_info("[SENSOR]: %s - change mode %u\n", __func__, mode);
+	pr_debug("[SENSOR]: %s - change mode %u\n", __func__, mode);
 	mutex_unlock(&data->mode_mutex);
 
 	return ret;
@@ -374,7 +374,7 @@ static int bma255_set_bandwidth(struct bma255_p *data,
 	buf = BMA255_SET_BITSLICE(buf, BMA255_BANDWIDTH, bandwidth);
 	ret += bma255_i2c_write(data, BMA255_BANDWIDTH__REG, buf);
 
-	pr_info("[SENSOR]: %s - change bandwidth %u\n", __func__, bandwidth);
+	pr_debug("[SENSOR]: %s - change bandwidth %u\n", __func__, bandwidth);
 	return ret;
 }
 
@@ -456,7 +456,7 @@ static void bma255_work_func(struct work_struct *work)
 exit:
 	if ((ktime_to_ns(data->poll_delay) * (int64_t)data->time_count)
 		>= ((int64_t)ACCEL_LOG_TIME * NSEC_PER_SEC)) {
-		pr_info("[SENSOR]: %s - x = %d, y = %d, z = %d (ra:%d)\n",
+		pr_debug("[SENSOR]: %s - x = %d, y = %d, z = %d (ra:%d)\n",
 			__func__, data->accdata.x, data->accdata.y,
 			data->accdata.z, data->recog_flag);
 		data->time_count = 0;
@@ -496,7 +496,7 @@ static ssize_t bma255_enable_store(struct device *dev,
 		return ret;
 	}
 
-	pr_info("[SENSOR]: %s - new_value = %u\n", __func__, enable);
+	pr_debug("[SENSOR]: %s - new_value = %u\n", __func__, enable);
 	pre_enable = atomic_read(&data->enable);
 
 	if (enable) {
@@ -555,7 +555,7 @@ static ssize_t bma255_delay_store(struct device *dev,
 		bma255_set_bandwidth(data, BMA255_BW_7_81HZ);
 
 	data->poll_delay = ns_to_ktime(delay);
-	pr_info("[SENSOR]: %s - poll_delay = %lld\n", __func__, delay);
+	pr_debug("[SENSOR]: %s - poll_delay = %lld\n", __func__, delay);
 
 	if (atomic_read(&data->enable) == ON) {
 		bma255_set_mode(data, BMA255_MODE_SUSPEND);
@@ -613,7 +613,7 @@ static int bma255_open_calibration(struct bma255_p *data)
 		data->caldata.y = 0;
 		data->caldata.z = 0;
 
-		pr_info("[SENSOR]: %s - No Calibration\n", __func__);
+		pr_err("[SENSOR]: %s - No Calibration\n", __func__);
 
 		return ret;
 	}
@@ -628,7 +628,7 @@ static int bma255_open_calibration(struct bma255_p *data)
 	filp_close(cal_filp, current->files);
 	set_fs(old_fs);
 
-	pr_info("[SENSOR]: open accel calibration %d, %d, %d\n",
+	pr_debug("[SENSOR]: open accel calibration %d, %d, %d\n",
 		data->caldata.x, data->caldata.y, data->caldata.z);
 
 	if ((data->caldata.x == 0) && (data->caldata.y == 0)
@@ -685,7 +685,7 @@ static int bma255_do_calibrate(struct bma255_p *data, int enable)
 		data->caldata.z = 0;
 	}
 
-	pr_info("[SENSOR]: %s - do accel calibrate %d, %d, %d\n", __func__,
+	pr_debug("[SENSOR]: %s - do accel calibrate %d, %d, %d\n", __func__,
 		data->caldata.x, data->caldata.y, data->caldata.z);
 
 	old_fs = get_fs();
@@ -726,7 +726,7 @@ static ssize_t bma255_calibration_show(struct device *dev,
 		pr_err("[SENSOR]: %s - calibration open failed(%d)\n",
 			__func__, ret);
 
-	pr_info("[SENSOR]: %s - cal data %d %d %d - ret : %d\n", __func__,
+	pr_debug("[SENSOR]: %s - cal data %d %d %d - ret : %d\n", __func__,
 		data->caldata.x, data->caldata.y, data->caldata.z, ret);
 
 	return snprintf(buf, PAGE_SIZE, "%d %d %d %d\n", ret, data->caldata.x,
@@ -858,15 +858,15 @@ static ssize_t bma255_reactive_alert_store(struct device *dev,
 	if (sysfs_streq(buf, "0")) {
 		enable = OFF;
 		factory_mode = OFF;
-		pr_info("[SENSOR]: %s - disable\n", __func__);
+		pr_debug("[SENSOR]: %s - disable\n", __func__);
 	} else if (sysfs_streq(buf, "1")) {
 		enable = ON;
 		factory_mode = OFF;
-		pr_info("[SENSOR]: %s - enable\n", __func__);
+		pr_debug("[SENSOR]: %s - enable\n", __func__);
 	} else if (sysfs_streq(buf, "2")) {
 		enable = ON;
 		factory_mode = ON;
-		pr_info("[SENSOR]: %s - factory mode\n", __func__);
+		pr_debug("[SENSOR]: %s - factory mode\n", __func__);
 	} else {
 		pr_err("[SENSOR]: %s - invalid value %d\n", __func__, *buf);
 		return -EINVAL;
@@ -883,7 +883,7 @@ static ssize_t bma255_reactive_alert_store(struct device *dev,
 		if (atomic_read(&data->enable) == OFF)
 			bma255_set_mode(data, BMA255_MODE_LOWPOWER1);
 
-		pr_info("[SENSOR]: %s - reactive alert is on!\n", __func__);
+		pr_debug("[SENSOR]: %s - reactive alert is on!\n", __func__);
 	} else if ((enable == OFF) && (data->recog_flag == ON)) {
 		bma255_slope_enable(data, OFF, factory_mode);
 
@@ -894,7 +894,7 @@ static ssize_t bma255_reactive_alert_store(struct device *dev,
 		if (atomic_read(&data->enable) == OFF)
 			bma255_set_mode(data, BMA255_MODE_SUSPEND);
 
-		pr_info("[SENSOR]: %s - reactive alert is off! irq = %d\n",
+		pr_debug("[SENSOR]: %s - reactive alert is off! irq = %d\n",
 			__func__, data->irq_state);
 	}
 
@@ -944,7 +944,7 @@ static irqreturn_t bma255_irq_thread(int irq, void *bma255_data_p)
 	wake_lock_timeout(&data->reactive_wake_lock,
 		msecs_to_jiffies(2000));
 	schedule_delayed_work(&data->irq_work, msecs_to_jiffies(100));
-	pr_info("###### [SENSOR]: %s reactive irq ######\n", __func__);
+	pr_debug("###### [SENSOR]: %s reactive irq ######\n", __func__);
 
 	return IRQ_HANDLED;
 }
@@ -1034,12 +1034,12 @@ static int bma255_parse_dt(struct bma255_p *data, struct device *dev)
 	data->sda_gpio = of_get_named_gpio_flags(dNode,
 		"bma255-i2c,sda", 0, &flags);
 	if (data->sda_gpio < 0)
-		pr_info("[SENSOR]: %s - no sda_gpio\n", __func__);
+		pr_debug("[SENSOR]: %s - no sda_gpio\n", __func__);
 
 	data->scl_gpio = of_get_named_gpio_flags(dNode,
 		"bma255-i2c,scl", 0, &flags);
 	if (data->scl_gpio < 0)
-		pr_info("[SENSOR]: %s - no scl_gpio\n", __func__);
+		pr_debug("[SENSOR]: %s - no scl_gpio\n", __func__);
 
 	if (of_property_read_u32(dNode,
 			"bma255-i2c,chip_pos", &data->chip_pos) < 0)
@@ -1086,8 +1086,8 @@ static int bma255_probe(struct i2c_client *client,
 	int ret = -ENODEV, i;
 	struct bma255_p *data = NULL;
 
-	pr_info("##########################################################\n");
-	pr_info("[SENSOR]: %s - Probe Start!\n", __func__);
+	pr_debug("##########################################################\n");
+	pr_debug("[SENSOR]: %s - Probe Start!\n", __func__);
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
 		pr_err("[SENSOR]: %s - i2c_check_functionality error\n",
 			__func__);
@@ -1132,7 +1132,7 @@ static int bma255_probe(struct i2c_client *client,
 			pr_err("[SENSOR]: %s - chip id failed 0x%x\n",
 				__func__, (unsigned int)ret & 0x00ff);
 		} else {
-			pr_info("[SENSOR]: %s - chip id success 0x%x\n",
+			pr_debug("[SENSOR]: %s - chip id success 0x%x\n",
 				__func__, (unsigned int)ret & 0x00ff);
 			break;
 		}
@@ -1189,7 +1189,7 @@ static int bma255_probe(struct i2c_client *client,
 	bma255_set_range(data, BMA255_RANGE_2G);
 	bma255_set_mode(data, BMA255_MODE_SUSPEND);
 
-	pr_info("[SENSOR]: %s - Probe done!(chip pos : %d)\n",
+	pr_debug("[SENSOR]: %s - Probe done!(chip pos : %d)\n",
 		__func__, data->chip_pos);
 
 	return 0;
@@ -1218,7 +1218,7 @@ static void bma255_shutdown(struct i2c_client *client)
 {
 	struct bma255_p *data = (struct bma255_p *)i2c_get_clientdata(client);
 
-	pr_info("[SENSOR]: %s\n", __func__);
+	pr_debug("[SENSOR]: %s\n", __func__);
 
 	if (atomic_read(&data->enable) == ON)
 		bma255_set_enable(data, OFF);
@@ -1257,7 +1257,7 @@ static int bma255_suspend(struct device *dev)
 {
 	struct bma255_p *data = dev_get_drvdata(dev);
 
-	pr_info("[SENSOR]: %s\n", __func__);
+	pr_debug("[SENSOR]: %s\n", __func__);
 
 	if (atomic_read(&data->enable) == ON) {
 		if (data->recog_flag == ON)
@@ -1275,7 +1275,7 @@ static int bma255_resume(struct device *dev)
 {
 	struct bma255_p *data = dev_get_drvdata(dev);
 
-	pr_info("[SENSOR]: %s\n", __func__);
+	pr_debug("[SENSOR]: %s\n", __func__);
 
 	if (atomic_read(&data->enable) == ON) {
 		bma255_set_mode(data, BMA255_MODE_NORMAL);
