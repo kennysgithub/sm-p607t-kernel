@@ -31,7 +31,10 @@
 /*#define USB_DEBUG
  *#define USB_MORE_DEBUG
  */
-#define USB_DEBUG_ESS
+
+#undef USB_DEBUG
+#undef USB_DEBUG_ESS
+#undef USB_MORE_DEBUG
 
 #ifdef USB_DEBUG
 #  ifdef USB_MORE_DEBUG

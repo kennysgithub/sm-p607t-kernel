@@ -404,7 +404,7 @@ static void android_work(struct work_struct *data)
 		      (last_uevent != USB_DISCONNECTED)) ||
 		    ((uevent_envp == configured) &&
 		      (last_uevent == USB_CONFIGURED))) {
-			pr_info("%s: sent missed DISCONNECT event\n", __func__);
+			pr_debug("%s: sent missed DISCONNECT event\n", __func__);
 			kobject_uevent_env(&dev->dev->kobj, KOBJ_CHANGE,
 								disconnected);
 			msleep(20);
@@ -426,9 +426,9 @@ static void android_work(struct work_struct *data)
 #endif
 			last_uevent = next_state;
 		}
-		pr_info("%s: sent uevent %s\n", __func__, uevent_envp[0]);
+		pr_debug("%s: sent uevent %s\n", __func__, uevent_envp[0]);
 	} else {
-		pr_info("%s: did not send uevent (%d %d %p)\n", __func__,
+		pr_debug("%s: did not send uevent (%d %d %p)\n", __func__,
 			 dev->connected, dev->sw_connected, cdev->config);
 	}
 }
@@ -442,7 +442,7 @@ void usb_gadget_connect_work(struct work_struct *work)
 	    container_of(work, struct android_dev, usb_connection_work.work);
 	struct usb_composite_dev *cdev = dev->cdev;
 
-	pr_info("%s: speaker_status: %d, speaker_check_count %d\n",
+	pr_debug("%s: speaker_status: %d, speaker_check_count %d\n",
 		__func__, speaker_status, dev->speaker_check_count);
 
 	/* Max 3 sec */
@@ -462,11 +462,11 @@ void schedule_usb_gadget_connect_work(struct android_dev *dev)
 
 	if (dev == NULL) return;
 
-	pr_info("%s\n",__func__);
+	pr_debug("%s\n",__func__);
 
 	if (work_busy(&dev->usb_connection_work.work)) {
 		cancel_delayed_work(&dev->usb_connection_work);
-		pr_info("%s  canceling the work\n",__func__);
+		pr_debug("%s  canceling the work\n",__func__);
 	}
 
 	kobject_uevent_env(&dev->dev->kobj, KOBJ_CHANGE, ready);
@@ -2107,7 +2107,7 @@ static ssize_t mass_storage_vendor_store(struct device *dev,
 	if (sscanf(buf, "%s", config->common->vendor_string) != 1)
 		return -EINVAL;
 
-	printk(KERN_DEBUG "%s: vendor %s", __func__,
+	pr_info("%s: vendor %s", __func__,
 				config->common->vendor_string);
 	return size;
 }
@@ -2135,7 +2135,7 @@ static ssize_t mass_storage_product_store(struct device *dev,
 	if (sscanf(buf, "%s", config->common->product_string) != 1)
 		return -EINVAL;
 
-	printk(KERN_DEBUG "%s: product %s", __func__,
+	pr_info("%s: product %s", __func__,
 				config->common->product_string);
 	return size;
 }
@@ -2152,7 +2152,7 @@ static ssize_t sua_version_info_show(struct device *dev,
 	int ret;
 
 	ret = sprintf(buf, "%s\r\n",config->common-> version_string);
-	printk(KERN_DEBUG "usb: %s version %s\n", __func__, buf);
+	pr_info("usb: %s version %s\n", __func__, buf);
 	return ret;
 }
 
@@ -2173,7 +2173,7 @@ static ssize_t sua_version_info_store(struct device *dev,
 		len=sizeof(config->common-> version_string);
 		memcpy(config->common-> version_string,buf,len-1);
 	}
-	printk(KERN_DEBUG "usb: %s buf=%s[%d], %s\n", __func__, buf,sizeof(buf),config->common-> version_string);
+	pr_info("usb: %s buf=%s[%d], %s\n", __func__, buf,sizeof(buf),config->common-> version_string);
 	return size;
 }
 
@@ -2702,7 +2702,7 @@ functions_store(struct device *pdev, struct device_attribute *attr,
 #ifdef CONFIG_USB_ANDROID_SAMSUNG_COMPOSITE
 				/* Enable ncm function */
 				if (is_ncm_ready(name)) {
-					printk(KERN_DEBUG "usb: %s ncm on\n",
+					pr_debug("usb: %s ncm on\n",
 							__func__);
 					err = android_enable_function(dev, conf,
 							"ncm");
@@ -2733,7 +2733,7 @@ static ssize_t enable_show(struct device *pdev, struct device_attribute *attr,
 			   char *buf)
 {
 	struct android_dev *dev = dev_get_drvdata(pdev);
-	printk(KERN_DEBUG "usb: %s dev->enabled=%d\n", __func__,  dev->enabled);
+	pr_debug("usb: %s dev->enabled=%d\n", __func__,  dev->enabled);
 	return snprintf(buf, PAGE_SIZE, "%d\n", dev->enabled);
 }
 
@@ -2755,7 +2755,7 @@ static ssize_t enable_store(struct device *pdev, struct device_attribute *attr,
 	mutex_lock(&dev->mutex);
 
 	sscanf(buff, "%d", &enabled);
-	printk(KERN_INFO "usb: enabled: %d, dev->enabled: %d\n",
+	pr_debug("usb: enabled: %d, dev->enabled: %d\n",
 			enabled, dev->enabled);
 	if (enabled && !dev->enabled) {
 		/*
@@ -2779,20 +2779,20 @@ static ssize_t enable_store(struct device *pdev, struct device_attribute *attr,
 		list_for_each_entry(conf, &dev->configs, list_item)
 			list_for_each_entry(f_holder, &conf->enabled_functions,
 						enabled_list) {
-				printk(KERN_DEBUG "usb: %s f_holder->f:%s\n",
+				pr_debug("usb: %s f_holder->f:%s\n",
 					__func__, f_holder->f->name);
 				if (!strcmp(f_holder->f->name, "acm")) {
-					printk(KERN_DEBUG "usb: acm is enabled. (bcdDevice=0x400)\n");
+					pr_debug("usb: acm is enabled. (bcdDevice=0x400)\n");
 					/* Samsung KIES needs fixed bcdDevice number */
 					cdev->desc.bcdDevice = cpu_to_le16(0x0400);
 				}
 #ifdef CONFIG_USB_ANDROID_SAMSUNG_SIDESYNC
 				if (!strcmp(f_holder->f->name, "conn_gadget")) {
 					if(cdev->desc.bcdDevice == cpu_to_le16(0x0400))	{
-						printk(KERN_DEBUG "usb: conn_gadget + kies (bcdDevice=0xC00)\n");
+						pr_debug("usb: conn_gadget + kies (bcdDevice=0xC00)\n");
 						cdev->desc.bcdDevice = cpu_to_le16(0x0C00);
 					} else {
-						printk(KERN_DEBUG "usb: conn_gadget only (bcdDevice=0x800)\n");
+						pr_debug("usb: conn_gadget only (bcdDevice=0x800)\n");
 						cdev->desc.bcdDevice = cpu_to_le16(0x0800);
 					}
 				}
@@ -2804,14 +2804,14 @@ static ssize_t enable_store(struct device *pdev, struct device_attribute *attr,
 		cdev->desc.bDeviceSubClass = device_desc.bDeviceSubClass;
 		cdev->desc.bDeviceProtocol = device_desc.bDeviceProtocol;
 
-		printk(KERN_DEBUG "usb: %s vendor=%x,product=%x,bcdDevice=%x",
+		pr_debug("usb: %s vendor=%x,product=%x,bcdDevice=%x",
 				__func__, cdev->desc.idVendor,
 				cdev->desc.idProduct, cdev->desc.bcdDevice);
-		printk(KERN_DEBUG ",Class=%x,SubClass=%x,Protocol=%x\n",
+		pr_debug(",Class=%x,SubClass=%x,Protocol=%x\n",
 				cdev->desc.bDeviceClass,
 				cdev->desc.bDeviceSubClass,
 				cdev->desc.bDeviceProtocol);
-		printk(KERN_DEBUG "usb: %s next cmd : usb_add_config\n",
+		pr_debug("usb: %s next cmd : usb_add_config\n",
 				__func__);
 
 		/* Audio dock accessory is unable to enumerate device if
@@ -2901,7 +2901,7 @@ static ssize_t state_show(struct device *pdev, struct device_attribute *attr,
 		state = "CONNECTED";
 	spin_unlock_irqrestore(&cdev->lock, flags);
 out:
-	printk(KERN_DEBUG "usb: %s buf=%s\n", __func__, state);
+	pr_debug("usb: %s buf=%s\n", __func__, state);
 	return snprintf(buf, PAGE_SIZE, "%s\n", state);
 }
 
@@ -2990,7 +2990,7 @@ static ssize_t usb30en_store (struct device *pdev,
 	if (sscanf(buf, "%d", &value) == 1) {
 		if (dev->cdev ) {
 			if(usb30en == value){
-				printk(KERN_INFO "usb: %s ignore!! usb30en(%d), value(%d)\n",
+				pr_debug("usb: %s ignore!! usb30en(%d), value(%d)\n",
 						__func__, usb30en, value);
 				return size;
 			}
@@ -2998,7 +2998,7 @@ static ssize_t usb30en_store (struct device *pdev,
 			usb_gadget_disconnect(dev->cdev->gadget);
 			sec_set_speedlimit(dev->cdev->gadget,
 					(usb30en ? USB_SPEED_SUPER : USB_SPEED_HIGH));
-			printk(KERN_DEBUG "usb: %s B4 disconectng gadget\n", __func__);
+			pr_debug("usb: %s B4 disconectng gadget\n", __func__);
 			msleep(200);
 #if defined(CONFIG_SEC_H_PROJECT)
 			if (!usb30en)
@@ -3006,7 +3006,7 @@ static ssize_t usb30en_store (struct device *pdev,
 			else
 #endif
 			usb_gadget_connect(dev->cdev->gadget);
-			printk(KERN_DEBUG "usb: %s after usb_gadget_connect\n",	__func__);
+			pr_debug("usb: %s after usb_gadget_connect\n",	__func__);
 			return size;
 		}
 	}
@@ -3082,7 +3082,7 @@ static ssize_t store_usb_device_lock_state(struct device *pdev,
 	psy = power_supply_get_by_name("dwc-usb");
 
 	if (!psy) {
-		pr_info("%s: couldn't get usb power supply\n", __func__);
+		pr_err("%s: couldn't get usb power supply\n", __func__);
 		return -EINVAL;
 	}
 
@@ -3103,7 +3103,7 @@ static ssize_t store_usb_device_lock_state(struct device *pdev,
 
 	if(dev->usb_lock) {
 		power_supply_set_present(psy, 0);
-		pr_info("[%s][%d] : usb disconnect for support MDM\n",
+		pr_debug("[%s][%d] : usb disconnect for support MDM\n",
 			__func__,__LINE__);
 	}
 
@@ -3197,7 +3197,7 @@ static int android_bind(struct usb_composite_dev *cdev)
 
 	dev->cdev = cdev;
 
-	printk(KERN_DEBUG "usb: %s disconnect\n", __func__);
+	pr_debug("usb: %s disconnect\n", __func__);
 	/*
 	 * Start disconnected. Userspace will connect the gadget once
 	 * it is done configuring the functions.
@@ -3260,7 +3260,7 @@ static int android_usb_unbind(struct usb_composite_dev *cdev)
 {
 	struct android_dev *dev = cdev_to_android_dev(cdev);
 
-	printk(KERN_DEBUG "usb: %s\n", __func__);
+	pr_debug("usb: %s\n", __func__);
 
 	manufacturer_string[0] = '\0';
 	product_string[0] = '\0';

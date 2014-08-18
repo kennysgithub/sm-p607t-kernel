@@ -2391,7 +2391,7 @@ static void dwc3_gadget_disconnect_interrupt(struct dwc3 *dwc)
 {
 	int			reg;
 
-	pr_info("usb:: %s\n", __func__);
+	pr_debug("usb:: %s\n", __func__);
 
 	reg = dwc3_readl(dwc->regs, DWC3_DCTL);
 	reg &= ~DWC3_DCTL_INITU1ENA;
@@ -2441,7 +2441,7 @@ static void dwc3_gadget_reset_interrupt(struct dwc3 *dwc)
 	u32			reg;
 	struct dwc3_otg		*dotg = dwc->dotg;
 
-	pr_info("usb:: %s\n", __func__);
+	pr_debug("usb:: %s\n", __func__);
 
 	/*
 	 * WORKAROUND: DWC3 revisions <1.88a have an issue which
@@ -2584,26 +2584,26 @@ static void dwc3_gadget_conndone_interrupt(struct dwc3 *dwc)
 		dwc3_gadget_ep0_desc.wMaxPacketSize = cpu_to_le16(512);
 		dwc->gadget.ep0->maxpacket = 512;
 		dwc->gadget.speed = USB_SPEED_SUPER;
-		pr_info("usb:: %s (SS)\n", __func__);
+		pr_debug("usb:: %s (SS)\n", __func__);
 		break;
 	case DWC3_DCFG_HIGHSPEED:
 		dwc3_gadget_ep0_desc.wMaxPacketSize = cpu_to_le16(64);
 		dwc->gadget.ep0->maxpacket = 64;
 		dwc->gadget.speed = USB_SPEED_HIGH;
-		pr_info("usb:: %s (HS)\n", __func__);
+		pr_debug("usb:: %s (HS)\n", __func__);
 		break;
 	case DWC3_DCFG_FULLSPEED2:
 	case DWC3_DCFG_FULLSPEED1:
 		dwc3_gadget_ep0_desc.wMaxPacketSize = cpu_to_le16(64);
 		dwc->gadget.ep0->maxpacket = 64;
 		dwc->gadget.speed = USB_SPEED_FULL;
-		pr_info("usb:: %s (FS)\n", __func__);
+		pr_debug("usb:: %s (FS)\n", __func__);
 		break;
 	case DWC3_DCFG_LOWSPEED:
 		dwc3_gadget_ep0_desc.wMaxPacketSize = cpu_to_le16(8);
 		dwc->gadget.ep0->maxpacket = 8;
 		dwc->gadget.speed = USB_SPEED_LOW;
-		pr_info("usb:: %s (LS)\n", __func__);
+		pr_debug("usb:: %s (LS)\n", __func__);
 		break;
 	}
 
@@ -2661,7 +2661,7 @@ static void dwc3_gadget_conndone_interrupt(struct dwc3 *dwc)
 
 static void dwc3_gadget_wakeup_interrupt(struct dwc3 *dwc)
 {
-	pr_info("usb:: %s\n", __func__);
+	pr_debug("usb:: %s\n", __func__);
 
 	/*
 	 * TODO take core out of low power mode when that's
@@ -2921,7 +2921,7 @@ static irqreturn_t dwc3_interrupt(int irq, void *_dwc)
 static struct dwc3 *sec_dwc3;
 void force_dwc3_gadget_disconnect(void)
 {
-	pr_info("usb::%s\n", __func__);
+	pr_debug("usb::%s\n", __func__);
 	spin_lock(&sec_dwc3->lock);
 	dwc3_disconnect_gadget(sec_dwc3);
 	spin_unlock(&sec_dwc3->lock);
