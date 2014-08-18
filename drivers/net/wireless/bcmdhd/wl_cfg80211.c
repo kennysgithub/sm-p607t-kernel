@@ -3,13 +3,13 @@
  * Linux cfg80211 driver
  *
  * Copyright (C) 1999-2014, Broadcom Corporation
- * 
+ *
  *      Unless you and Broadcom execute a separate written software license
  * agreement governing use of this software, this software is licensed to you
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -17,7 +17,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -2587,7 +2587,7 @@ __wl_cfg80211_scan(struct wiphy *wiphy, struct net_device *ndev,
 		ssids = this_ssid;
 	}
 	if (request && !p2p_scan(wl))
-		WL_TRACE_HW4(("START SCAN\n"));
+		WL_INFO(("START SCAN\n"));
 	wl->scan_request = request;
 	wl_set_drv_status(wl, SCANNING, ndev);
 	if (iscan_req) {
@@ -10014,7 +10014,7 @@ static s32 wl_escan_handler(struct wl_priv *wl, bcm_struct_cfgdev *cfgdev,
 			WL_INFO(("ESCAN COMPLETED\n"));
 			wl->bss_list = wl_escan_get_buf(wl, FALSE);
 			if (!scan_req_match(wl)) {
-				WL_TRACE_HW4(("SCAN COMPLETED: scanned AP count=%d\n",
+				WL_INFO(("SCAN COMPLETED: scanned AP count=%d\n",
 					wl->bss_list->count));
 			}
 			wl_inform_bss(wl);
@@ -10554,7 +10554,7 @@ s32 wl_cfg80211_attach(struct net_device *ndev, void *data)
 	err = wl_cfg80211_btcoex_init(wl);
 	if (err)
 		goto cfg80211_attach_out;
-#endif 
+#endif
 
 	wlcfg_drv_priv = wl;
 
@@ -10586,7 +10586,7 @@ void wl_cfg80211_detach(void *para)
 
 #if defined(COEX_DHCP)
 	wl_cfg80211_btcoex_deinit(wl);
-#endif 
+#endif
 
 	wl_setup_rfkill(wl, FALSE);
 #ifdef DEBUGFS_CFG80211

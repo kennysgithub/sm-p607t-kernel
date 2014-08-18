@@ -817,7 +817,9 @@ static int lpm_suspend_prepare(void)
 {
 	suspend_in_progress = true;
 	msm_mpm_suspend_prepare();
+#ifdef CONFIG_SEC_PM_DEBUG
 	regulator_showall_enabled();
+#endif
 
 #ifdef CONFIG_SEC_GPIO_DVS
 	/************************ Caution !!! ****************************

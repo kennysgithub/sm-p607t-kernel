@@ -326,7 +326,7 @@ static ssize_t ak8963c_enable_store(struct device *dev,
 		return ret;
 	}
 
-	pr_info("[SENSOR]: %s - new_value = %u\n", __func__, enable);
+	pr_debug("[SENSOR]: %s - new_value = %u\n", __func__, enable);
 	if ((enable == 0) || (enable == 1))
 		ak8963c_set_enable(data, (int)enable);
 
@@ -356,7 +356,7 @@ static ssize_t ak8963c_delay_store(struct device *dev,
 	}
 
 	atomic_set(&data->delay, (int64_t)delay);
-	pr_info("[SENSOR]: %s - poll_delay = %lld\n", __func__, delay);
+	pr_debug("[SENSOR]: %s - poll_delay = %lld\n", __func__, delay);
 
 	return size;
 }
@@ -391,7 +391,7 @@ retry:
 
 	/* read device info */
 	ak8963c_i2c_read_block(data->client, AK8963C_REG_WIA, temp, 2);
-	pr_info("[SENSOR]: %s - device id = 0x%x, info = 0x%x\n",
+	pr_debug("[SENSOR]: %s - device id = 0x%x, info = 0x%x\n",
 		__func__, temp[0], temp[1]);
 
 	/* set ATSC self test bit to 1 */
@@ -428,22 +428,22 @@ retry:
 	y = (y * (data->asa[1] + 128)) >> 8;
 	z = (z * (data->asa[2] + 128)) >> 8;
 
-	pr_info("[SENSOR]: %s - self test x = %d, y = %d, z = %d\n",
+	pr_debug("[SENSOR]: %s - self test x = %d, y = %d, z = %d\n",
 		__func__, x, y, z);
 	if ((x >= -200) && (x <= 200))
-		pr_info("[SENSOR]: %s - x passed self test, -200<=x<=200\n",
+		pr_debug("[SENSOR]: %s - x passed self test, -200<=x<=200\n",
 			__func__);
 	else
 		pr_info("[SENSOR]: %s - x failed self test, -200<=x<=200\n",
 			__func__);
 	if ((y >= -200) && (y <= 200))
-		pr_info("[SENSOR]: %s - y passed self test, -200<=y<=200\n",
+		pr_debug("[SENSOR]: %s - y passed self test, -200<=y<=200\n",
 			__func__);
 	else
 		pr_info("[SENSOR]: %s - y failed self test, -200<=y<=200\n",
 			__func__);
 	if ((z >= -3200) && (z <= -800))
-		pr_info("[SENSOR]: %s - z passed self test, -3200<=z<=-800\n",
+		pr_debug("[SENSOR]: %s - z passed self test, -3200<=z<=-800\n",
 			__func__);
 	else
 		pr_info("[SENSOR]: %s - z failed self test, -3200<=z<=-800\n",
@@ -618,7 +618,7 @@ retry_adc:
 	mag.y = (temp[4] << 8) + temp[3];
 	mag.z = (temp[6] << 8) + temp[5];
 
-	pr_info("[SENSOR]: %s - ST1=%d, x=%d, y=%d, z=%d, ST2=%d\n",
+	pr_debug("[SENSOR]: %s - ST1=%d, x=%d, y=%d, z=%d, ST2=%d\n",
 		__func__, temp[0], mag.x, mag.y, mag.z, temp[7]);
 
 exit:
@@ -669,7 +669,7 @@ retry_rawdata:
 	} else {
 		pr_err("[SENSOR]: %s - invalid raw data(st1 = %d)\n",
 					__func__, temp[0] & 0x01);
-		pr_info("[SENSOR]: %s - ST1=%d, x=%d, y=%d, z=%d, ST2=%d\n",
+		pr_debug("[SENSOR]: %s - ST1=%d, x=%d, y=%d, z=%d, ST2=%d\n",
 			__func__, temp[0], mag.x, mag.y, mag.z, temp[7]);
 
 		if (retry++ < 3)
@@ -724,7 +724,7 @@ static int ak8963c_read_fuserom(struct ak8963c_p *data)
 			"adjust values\n", __func__);
 		goto exit_default_value;
 	} else
-		pr_info("[SENSOR]: %s - asa_x = %u, asa_y = %u, asa_z = %u\n",
+		pr_debug("[SENSOR]: %s - asa_x = %u, asa_y = %u, asa_z = %u\n",
 			__func__, data->asa[0], data->asa[1], data->asa[2]);
 
 	reg = AK8963C_CNTL1_POWER_DOWN;
@@ -884,7 +884,7 @@ static int ak8963c_probe(struct i2c_client *client,
 	int ret = -ENODEV;
 	struct ak8963c_p *data = NULL;
 
-	pr_info("[SENSOR]: %s - Probe Start!\n", __func__);
+	pr_debug("[SENSOR]: %s - Probe Start!\n", __func__);
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
 		pr_err("[SENSOR]: %s - i2c_check_functionality error\n",
 			__func__);
@@ -939,7 +939,7 @@ static int ak8963c_probe(struct i2c_client *client,
 
 	ak8963c_read_fuserom(data);
 
-	pr_info("[SENSOR]: %s - Probe done!(chip pos : %d)\n",
+	pr_debug("[SENSOR]: %s - Probe done!(chip pos : %d)\n",
 		__func__, data->chip_pos);
 
 	return 0;
@@ -962,7 +962,7 @@ static void ak8963c_shutdown(struct i2c_client *client)
 {
 	struct ak8963c_p *data = (struct ak8963c_p *)i2c_get_clientdata(client);
 
-	pr_info("[SENSOR]: %s\n", __func__);
+	pr_debug("[SENSOR]: %s\n", __func__);
 	if (atomic_read(&data->enable) == 1) {
 		ak8963c_ecs_set_mode(data, AK8963C_CNTL1_POWER_DOWN);
 		cancel_delayed_work_sync(&data->work);

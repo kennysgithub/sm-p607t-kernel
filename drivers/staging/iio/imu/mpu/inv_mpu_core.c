@@ -3178,7 +3178,7 @@ static ssize_t inv_reactive_store(struct device *dev,
 		return -EINVAL;
 	}
 
-	pr_err("[SENSOR] %s: enable = %ld\n", __func__, enable);
+	pr_debug("[SENSOR] %s: enable = %ld\n", __func__, enable);
 
 	if (enable == 1) {
 		onoff = true;
@@ -3219,7 +3219,7 @@ static ssize_t inv_reactive_store(struct device *dev,
 			pr_err("[SENSOR] %s, set_inv_enable error\n", __func__);
 	}
 
-	pr_info("[SENSOR] %s: onoff = %d, state =%d OUT\n", __func__,
+	pr_debug("[SENSOR] %s: onoff = %d, state =%d OUT\n", __func__,
 			st->reactive_enable,
 			st->reactive_state);
 
@@ -4431,7 +4431,7 @@ static void inv_mpu_shutdown(struct i2c_client *client)
 	else
 		inv_mpu_regulator_onoff(&client->dev, false);
 
-	pr_info("[SENSOR] %s is done\n", __func__);
+	pr_debug("[SENSOR] %s is done\n", __func__);
 }
 
 /*

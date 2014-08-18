@@ -164,7 +164,7 @@ static void cm3323_work_func_light(struct work_struct *work)
 
 	if (((int64_t)atomic_read(&data->delay) * (int64_t)data->time_count)
 		>= ((int64_t)LIGHT_LOG_TIME * NSEC_PER_SEC)) {
-		pr_info("[SENSOR]: %s - r = %u g = %u b = %u w = %u\n",
+		pr_debug("[SENSOR]: %s - r = %u g = %u b = %u w = %u\n",
 			__func__, data->color[0], data->color[1],
 			data->color[2], data->color[3]);
 		data->time_count = 0;
@@ -198,7 +198,7 @@ static ssize_t cm3323_poll_delay_store(struct device *dev,
 	}
 
 	atomic_set(&data->delay, new_delay);
-	pr_info("[SENSOR]: %s - poll_delay = %lld\n", __func__, new_delay);
+	pr_debug("[SENSOR]: %s - poll_delay = %lld\n", __func__, new_delay);
 
 	return size;
 }
@@ -216,7 +216,7 @@ static ssize_t light_enable_store(struct device *dev,
 		return ret;
 	}
 
-	pr_info("[SENSOR]: %s - new_value = %u\n", __func__, enable);
+	pr_debug("[SENSOR]: %s - new_value = %u\n", __func__, enable);
 	if (enable && !(data->power_state & LIGHT_ENABLED)) {
 		data->power_state |= LIGHT_ENABLED;
 		cm3323_light_enable(data);
@@ -366,7 +366,7 @@ static int cm3323_probe(struct i2c_client *client,
 	int ret = -ENODEV;
 	struct cm3323_p *data = NULL;
 
-	pr_info("[SENSOR]: %s - Probe Start!\n", __func__);
+	pr_debug("[SENSOR]: %s - Probe Start!\n", __func__);
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
 		pr_err("[SENSOR]: %s - i2c_check_functionality error\n",
 			__func__);
@@ -402,7 +402,7 @@ static int cm3323_probe(struct i2c_client *client,
 
 	/* set sysfs for light sensor */
 	sensors_register(data->light_dev, data, sensor_attrs, MODULE_NAME);
-	pr_info("[SENSOR]: %s - Probe done!\n", __func__);
+	pr_debug("[SENSOR]: %s - Probe done!\n", __func__);
 
 	return 0;
 
@@ -419,7 +419,7 @@ static void cm3323_shutdown(struct i2c_client *client)
 {
 	struct cm3323_p *data = i2c_get_clientdata(client);
 
-	pr_info("[SENSOR]: %s\n", __func__);
+	pr_debug("[SENSOR]: %s\n", __func__);
 	if (data->power_state & LIGHT_ENABLED)
 		cm3323_light_disable(data);
 }
@@ -449,7 +449,7 @@ static int cm3323_suspend(struct device *dev)
 	struct cm3323_p *data = dev_get_drvdata(dev);
 
 	if (data->power_state & LIGHT_ENABLED) {
-		pr_info("[SENSOR]: %s\n", __func__);
+		pr_debug("[SENSOR]: %s\n", __func__);
 		cm3323_light_disable(data);
 	}
 
@@ -461,7 +461,7 @@ static int cm3323_resume(struct device *dev)
 	struct cm3323_p *data = dev_get_drvdata(dev);
 
 	if (data->power_state & LIGHT_ENABLED) {
-		pr_info("[SENSOR]: %s\n", __func__);
+		pr_debug("[SENSOR]: %s\n", __func__);
 		cm3323_light_enable(data);
 	}
 
