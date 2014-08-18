@@ -139,7 +139,7 @@ static int brcm_init_wlan_mem(void)
 	if (!wlan_static_dhd_info_buf)
 		goto err_mem_alloc;
 
-	printk(KERN_INFO"%s: WIFI MEM Allocated\n", __func__);
+	pr_debug("%s: WIFI MEM Allocated\n", __func__);
 	return 0;
 
  err_mem_alloc:
@@ -273,9 +273,9 @@ int __init brcm_wifi_init_gpio(void)
 
 static int brcm_wlan_power(int onoff)
 {
-	printk(KERN_INFO"------------------------------------------------");
-	printk(KERN_INFO"------------------------------------------------\n");
-	printk(KERN_INFO"%s Enter: power %s\n", __func__, onoff ? "on" : "off");
+	pr_debug("------------------------------------------------");
+	pr_debug("------------------------------------------------\n");
+	pr_debug("%s Enter: power %s\n", __func__, onoff ? "on" : "off");
 
 	if (onoff) {
 		/*
@@ -291,7 +291,7 @@ static int brcm_wlan_power(int onoff)
 				return -EIO;
 		}
 #else
-		printk(KERN_INFO"WL_REG_ON on-step : [%d]\n" , gpio_get_value(GPIO_WL_REG_ON));
+		pr_debug("WL_REG_ON on-step : [%d]\n" , gpio_get_value(GPIO_WL_REG_ON));
 		if (gpio_direction_output(GPIO_WL_REG_ON, 1)) {
 			printk(KERN_ERR "%s: check WL_REG_ON pin for H\n", __func__);
 			printk(KERN_ERR "%s: WL_REG_ON  failed to pull up\n", __func__);
@@ -299,11 +299,11 @@ static int brcm_wlan_power(int onoff)
 		}
 
 		if(gpio_get_value(GPIO_WL_REG_ON)){
-			printk(KERN_INFO"WL_REG_ON on-step-2 : [%d]\n" , gpio_get_value(GPIO_WL_REG_ON));
+			pr_debug("WL_REG_ON on-step-2 : [%d]\n" , gpio_get_value(GPIO_WL_REG_ON));
 		}
 		else
 		{
-			printk("[%s] gpio value is 0. We need reinit.\n",__func__);
+			pr_info("[%s] gpio value is 0. We need reinit.\n",__func__);
 #if !defined(CONFIG_SEC_K_PROJECT) && !defined(CONFIG_SEC_KACTIVE_PROJECT)
 			if (gpio_tlmm_config(config_gpio_wl_reg_on[0], GPIO_CFG_ENABLE))
 				printk(KERN_ERR "%s: Failed to configure GPIO"
@@ -338,14 +338,14 @@ static int brcm_wlan_power(int onoff)
 				return -EIO;
 		}
 #else
-		printk(KERN_INFO"WL_REG_ON off-step : [%d]\n" , gpio_get_value(GPIO_WL_REG_ON));
+		pr_debug("WL_REG_ON off-step : [%d]\n" , gpio_get_value(GPIO_WL_REG_ON));
 
 		if (gpio_direction_output(GPIO_WL_REG_ON, 0)) {
 			printk(KERN_ERR "%s: WL_REG_ON  failed to pull down\n", __func__);
 				return -EIO;
 		}
 
-		printk(KERN_INFO"WL_REG_ON off-step-2 : [%d]\n" , gpio_get_value(GPIO_WL_REG_ON));
+		pr_debug("WL_REG_ON off-step-2 : [%d]\n" , gpio_get_value(GPIO_WL_REG_ON));
 #endif
 	}
 
@@ -371,14 +371,14 @@ int brcm_wifi_status_register(
 	wifi_status_cb = callback;
 	wifi_status_cb_devid = dev_id;
 	wifi_mmc_host = mmc_host;
-	printk(KERN_INFO "%s: callback is %p, devid is %p\n",
+	pr_debug("%s: callback is %p, devid is %p\n",
 		__func__, wifi_status_cb, dev_id);
 	return 0;
 }
 
 unsigned int brcm_wifi_status(struct device *dev)
 {
-	printk("%s:%d status %d\n",__func__,__LINE__,brcm_wifi_cd);
+	pr_debug("%s:%d status %d\n",__func__,__LINE__,brcm_wifi_cd);
 	return brcm_wifi_cd;
 }
 
@@ -501,7 +501,7 @@ static struct platform_device brcm_device_wlan = {
 
 int __init brcm_wlan_init(void)
 {
-	printk(KERN_INFO"%s: gpio_to_irq IRQ=%d \n", 
+	pr_debug("%s: gpio_to_irq IRQ=%d \n",
 			__func__, (int)gpio_to_irq(GPIO_WL_HOST_WAKE) );
 
 #if defined(CONFIG_SPARSE_IRQ)

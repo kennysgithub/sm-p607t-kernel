@@ -2019,7 +2019,7 @@ static int msm_hs_check_clock_off(struct uart_port *uport)
 		msm_uport->wakeup.ignore = 1;
 		enable_irq(msm_uport->wakeup.irq);
 	}
-	printk(KERN_INFO "(msm_serial_hs) msm_hs_check_clock_off - dma wake unlock\n");
+	pr_debug("(msm_serial_hs) msm_hs_check_clock_off - dma wake unlock\n");
 	wake_unlock(&msm_uport->dma_wake_lock);
 
 	spin_unlock_irqrestore(&uport->lock, flags);
@@ -2044,9 +2044,9 @@ static void hsuart_clock_off_work(struct work_struct *w)
 				msm_uport->clk_off_delay,
 				HRTIMER_MODE_REL);
 	} else if (check_clk_off == -1) {
-		printk(KERN_INFO "(msm_serial_hs) hsuart_clock_off_work WORKQUEUE - FIFO is not empty or in flight...\n");
+		pr_debug("(msm_serial_hs) hsuart_clock_off_work WORKQUEUE - FIFO is not empty or in flight...\n");
 	} else {
-		printk(KERN_INFO "(msm_serial_hs) hsuart_clock_off_work WORKQUEUE - Maybe, clock is off-ed.\n");
+		pr_debug("(msm_serial_hs) hsuart_clock_off_work WORKQUEUE - Maybe, clock is off-ed.\n");
 	}
 }
 
@@ -2204,7 +2204,7 @@ void msm_hs_request_clock_on(struct uart_port *uport)
 
 	switch (msm_uport->clk_state) {
 	case MSM_HS_CLK_OFF:
-		printk(KERN_INFO "(msm_serial_hs) msm_hs_check_clock_on - dma wake lock\n");
+		pr_debug("(msm_serial_hs) msm_hs_check_clock_on - dma wake lock\n");
 		wake_lock(&msm_uport->dma_wake_lock);
 		if (use_low_power_wakeup(msm_uport))
 			disable_irq_nosync(msm_uport->wakeup.irq);
@@ -2427,7 +2427,7 @@ static int msm_hs_startup(struct uart_port *uport)
 	tx->dma_base = dma_map_single(uport->dev, tx_buf->buf, UART_XMIT_SIZE,
 				      DMA_TO_DEVICE);
 
-	printk(KERN_INFO "(msm_serial_hs) msm_hs_startup - dma wake lock\n");
+	pr_debug("(msm_serial_hs) msm_hs_startup - dma wake lock\n");
 	wake_lock(&msm_uport->dma_wake_lock);
 	/* turn on uart clk */
 	ret = msm_hs_init_clk(uport);
@@ -2595,7 +2595,7 @@ unconfig_uart_gpios:
 deinit_uart_clk:
 	msm_hs_clock_unvote(msm_uport);
 
-	printk(KERN_INFO "(msm_serial_hs) msm_hs_startup deinit clk - dma wake unlock\n");
+	pr_debug("(msm_serial_hs) msm_hs_startup deinit clk - dma wake unlock\n");
 
 	wake_unlock(&msm_uport->dma_wake_lock);
 
@@ -3356,7 +3356,7 @@ static int __init msm_serial_hs_init(void)
 		return ret;
 	}
 
-	printk(KERN_INFO "msm_serial_hs module loaded\n");
+	pr_debug("msm_serial_hs module loaded\n");
 	return ret;
 }
 
@@ -3433,7 +3433,7 @@ static void msm_hs_shutdown(struct uart_port *uport)
 		/* to balance clk_state */
 		msm_hs_clock_unvote(msm_uport);
 
-		printk(KERN_INFO "(msm_serial_hs) msm_hs_shutdown - dma wake unlock\n");
+		pr_debug("(msm_serial_hs) msm_hs_shutdown - dma wake unlock\n");
 		wake_unlock(&msm_uport->dma_wake_lock);
 	}
 	msm_hs_clock_unvote(msm_uport);
@@ -3461,7 +3461,7 @@ static void msm_hs_shutdown(struct uart_port *uport)
 
 static void __exit msm_serial_hs_exit(void)
 {
-	printk(KERN_INFO "msm_serial_hs module removed\n");
+	pr_debug("msm_serial_hs module removed\n");
 	debugfs_remove_recursive(debug_base);
 	platform_driver_unregister(&msm_serial_hs_platform_driver);
 	uart_unregister_driver(&msm_hs_driver);

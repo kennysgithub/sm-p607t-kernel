@@ -204,7 +204,7 @@ void destroy_sensor_class(void)
 
 static int __init sensors_class_init(void)
 {
-	pr_info("[SENSORS CORE] sensors_class_init\n");
+	pr_debug("[SENSORS CORE] sensors_class_init\n");
 
 	sensors_class = class_create(THIS_MODULE, "sensors");
 	if (IS_ERR(sensors_class)) {

@@ -288,7 +288,7 @@ static int bmg160_set_bw(struct bmg160_p *data, unsigned char bandwidth)
 	temp = BMG160_SET_BITSLICE(temp, BMG160_BW_ADDR, bandwidth);
 	ret += bmg160_i2c_write(data->client, BMG160_BW_ADDR__REG, temp);
 
-	pr_info("[SENSOR]: %s - change bandwidth %u\n", __func__, bandwidth);
+	pr_debug("[SENSOR]: %s - change bandwidth %u\n", __func__, bandwidth);
 	return ret;
 }
 
@@ -488,7 +488,7 @@ static ssize_t bmg160_enable_store(struct device *dev,
 		return ret;
 	}
 
-	pr_info("[SENSOR]: %s - new_value = %u\n", __func__, enable);
+	pr_debug("[SENSOR]: %s - new_value = %u\n", __func__, enable);
 	pre_enable = atomic_read(&data->enable);
 
 	if (enable) {
@@ -537,7 +537,7 @@ static ssize_t bmg160_delay_store(struct device *dev,
 		bmg160_set_bw(data, BMG160_BW_32Hz);
 
 	data->poll_delay = ns_to_ktime(delay);
-	pr_info("[SENSOR]: %s - poll_delay = %lld\n", __func__, delay);
+	pr_debug("[SENSOR]: %s - poll_delay = %lld\n", __func__, delay);
 
 	if (atomic_read(&data->enable) == ON) {
 		bmg160_set_mode(data, BMG160_MODE_SUSPEND);
@@ -594,7 +594,7 @@ static int bmg160_open_calibration(struct bmg160_p *data)
 		data->caldata.y = 0;
 		data->caldata.z = 0;
 
-		pr_info("[SENSOR]: %s - No Calibration\n", __func__);
+		pr_debug("[SENSOR]: %s - No Calibration\n", __func__);
 
 		return ret;
 	}
@@ -609,7 +609,7 @@ static int bmg160_open_calibration(struct bmg160_p *data)
 	filp_close(cal_filp, current->files);
 	set_fs(old_fs);
 
-	pr_info("[SENSOR]: open gyro calibration %d, %d, %d\n",
+	pr_debug("[SENSOR]: open gyro calibration %d, %d, %d\n",
 		data->caldata.x, data->caldata.y, data->caldata.z);
 
 	if ((data->caldata.x == 0) && (data->caldata.y == 0)
@@ -655,7 +655,7 @@ static int bmg160_save_calibration(struct bmg160_p *data)
 	filp_close(cal_filp, current->files);
 	set_fs(old_fs);
 
-	pr_info("[SENSOR]: save gyro calibration %d, %d, %d\n",
+	pr_debug("[SENSOR]: save gyro calibration %d, %d, %d\n",
 		data->caldata.x, data->caldata.y, data->caldata.z);
 
 	return ret;
@@ -693,7 +693,7 @@ static ssize_t bmg160_calibration_show(struct device *dev,
 		pr_err("[SENSOR]: %s - calibration open failed(%d)\n",
 			__func__, ret);
 
-	pr_info("[SENSOR]: %s - cal data %d %d %d - ret : %d\n", __func__,
+	pr_debug("[SENSOR]: %s - cal data %d %d %d - ret : %d\n", __func__,
 		data->caldata.x, data->caldata.y, data->caldata.z, ret);
 
 	return snprintf(buf, PAGE_SIZE, "%d,%d,%d,%d\n", ret, data->caldata.x,
@@ -770,7 +770,7 @@ static ssize_t bmg160_get_temp(struct device *dev,
 	if (atomic_read(&data->enable) == OFF)
 		bmg160_set_mode(data, BMG160_MODE_SUSPEND);
 
-	pr_info("[SENSOR]: %s - temperature = %d\n", __func__, temperature);
+	pr_debug("[SENSOR]: %s - temperature = %d\n", __func__, temperature);
 
 	return sprintf(buf, "%d\n", temperature);
 }
@@ -793,7 +793,7 @@ static ssize_t bmg160_selftest_dps_store(struct device *dev,
 		data->gyro_dps = BMG160_RANGE_500DPS;
 
 	bmg160_set_range(data, data->gyro_dps);
-	pr_info("[SENSOR]: %s - dps = %d\n", __func__, data->gyro_dps);
+	pr_debug("[SENSOR]: %s - dps = %d\n", __func__, data->gyro_dps);
 
 	return size;
 }
@@ -829,7 +829,7 @@ static unsigned char bmg160_selftest(struct bmg160_p *data)
 
 	bist = !(BMG160_GET_BITSLICE(bist, BMG160_SELF_TEST_ADDR_BISTFAIL));
 
-	pr_info("[SENSOR]: %s - rate %u, bist %u\n", __func__, rateok, bist);
+	pr_debug("[SENSOR]: %s - rate %u, bist %u\n", __func__, rateok, bist);
 
 	return (rateok && bist);
 }
@@ -875,7 +875,7 @@ static int bmg160_selftest_show(struct device *dev,
 	datay_check = (int)abs((2000 * (long)avg.y * 1000) / 32768);
 	dataz_check = (int)abs((2000 * (long)avg.z * 1000) / 32768);
 
-	pr_info("[SENSOR]: %s - x = %d.%03d, y = %d.%03d, z= %d.%03d\n",
+	pr_debug("[SENSOR]: %s - x = %d.%03d, y = %d.%03d, z= %d.%03d\n",
 		__func__, (datax_check / 1000), (datax_check % 1000),
 		(datay_check / 1000), (datay_check % 1000),
 		(dataz_check / 1000), (dataz_check % 1000));
@@ -886,11 +886,11 @@ static int bmg160_selftest_show(struct device *dev,
 	if ((datax_check <= SELFTEST_LIMITATION_OF_ERROR)
 		&& (datay_check <= SELFTEST_LIMITATION_OF_ERROR)
 		&& (dataz_check <= SELFTEST_LIMITATION_OF_ERROR)) {
-		pr_info("[SENSOR]: %s - Gyro zero rate OK!\n", __func__);
+		pr_debug("[SENSOR]: %s - Gyro zero rate OK!\n", __func__);
 		bmg160_get_caldata(data);
 		bmg160_save_calibration(data);
 	} else {
-		pr_info("[SENSOR]: %s - Gyro zero rate NG!\n", __func__);
+		pr_debug("[SENSOR]: %s - Gyro zero rate NG!\n", __func__);
 		selftest |= 1;
 	}
 
@@ -900,7 +900,7 @@ static int bmg160_selftest_show(struct device *dev,
 		bmg160_set_mode(data, BMG160_MODE_SUSPEND);
 
 	if (selftest == 0)
-		pr_info("[SENSOR]: %s - Gyro selftest Pass!\n", __func__);
+		pr_debug("[SENSOR]: %s - Gyro selftest Pass!\n", __func__);
 	else
 		pr_err("[SENSOR]: %s - Gyro selftest fail!\n", __func__);
 
@@ -1036,7 +1036,7 @@ static int bmg160_probe(struct i2c_client *client,
 	int ret = -ENODEV;
 	struct bmg160_p *data = NULL;
 
-	pr_info("[SENSOR]: %s - Probe Start!\n", __func__);
+	pr_debug("[SENSOR]: %s - Probe Start!\n", __func__);
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
 		pr_err("[SENSOR]: %s - i2c_check_functionality error\n",
 			__func__);
@@ -1094,7 +1094,7 @@ static int bmg160_probe(struct i2c_client *client,
 	bmg160_set_range(data, data->gyro_dps);
 	bmg160_set_bw(data, BMG160_BW_32Hz);
 	bmg160_set_mode(data, BMG160_MODE_SUSPEND);
-	pr_info("[SENSOR]: %s - Probe done!(chip pos : %d)\n",
+	pr_debug("[SENSOR]: %s - Probe done!(chip pos : %d)\n",
 		__func__, data->chip_pos);
 
 	return 0;
@@ -1118,7 +1118,7 @@ static void bmg160_shutdown(struct i2c_client *client)
 {
 	struct bmg160_p *data = (struct bmg160_p *)i2c_get_clientdata(client);
 
-	pr_info("[SENSOR]: %s\n", __func__);
+	pr_debug("[SENSOR]: %s\n", __func__);
 	if (atomic_read(&data->enable) == ON)
 		bmg160_set_enable(data, OFF);
 
