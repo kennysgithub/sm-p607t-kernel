@@ -57,12 +57,12 @@
 #include <linux/delay.h>
 
 
-#define BT_SLEEP_DBG
+#undef BT_SLEEP_DBG
 #ifndef BT_SLEEP_DBG
 #define BT_DBG(fmt, arg...)
 #endif
 #undef  BT_DBG
-#undef BT_ERR
+#undef  BT_ERR
 #define BT_DBG(fmt, arg...) pr_err(fmt " [BT]\n", ##arg)
 #define BT_ERR(fmt, arg...) pr_err(fmt " [BT]\n", ##arg)
 
@@ -490,13 +490,13 @@ static int bluesleep_write_proc_lpm(struct file *file, const char *buffer,
 		return -EFAULT;
 
 	if (b == '0') {
-		BT_ERR("(bluesleep_write_proc_lpm) Unreg HCI notifier.");
+		BT_DBG("(bluesleep_write_proc_lpm) Unreg HCI notifier.");
 		/* HCI_DEV_UNREG */
 		bluesleep_stop();
 		has_lpm_enabled = false;
 		//bsi->uport = NULL;
 	} else if (b == '1') {
-		BT_ERR("(bluesleep_write_proc_lpm) Reg HCI notifier.");
+		BT_DBG("(bluesleep_write_proc_lpm) Reg HCI notifier.");
 		/* HCI_DEV_REG */
 		if (!has_lpm_enabled) {
 			has_lpm_enabled = true;

@@ -56,14 +56,16 @@
 #include <linux/barcode_emul.h>
 
 
-#define BT_SLEEP_DBG
+#undef BT_SLEEP_DBG
 #ifndef BT_SLEEP_DBG
-#define BT_DBG(fmt, arg...)
-#endif
 #undef  BT_DBG
-#undef BT_ERR
+#define BT_DBG(fmt, arg...)
+#else
+#undef  BT_DBG
+#undef  BT_ERR
 #define BT_DBG(fmt, arg...) pr_err(fmt " [BT]\n", ##arg)
 #define BT_ERR(fmt, arg...) pr_err(fmt " [BT]\n", ##arg)
+#endif
 
 /*
  * Defines
@@ -493,13 +495,13 @@ static int bluesleep_write_proc_lpm(struct file *file, const char *buffer,
 		return -EFAULT;
 
 	if (b == '0') {
-		BT_ERR("(bluesleep_write_proc_lpm) Unreg HCI notifier.");
+		BT_DBG("(bluesleep_write_proc_lpm) Unreg HCI notifier.");
 		/* HCI_DEV_UNREG */
 		bluesleep_stop();
 		bt_enabled = false;
 		//bsi->uport = NULL;
 	} else if (b == '1') {
-		BT_ERR("(bluesleep_write_proc_lpm) Reg HCI notifier.");
+		BT_DBG("(bluesleep_write_proc_lpm) Reg HCI notifier.");
 		/* HCI_DEV_REG */
 		if (!bt_enabled) {
 			bt_enabled = true;
@@ -508,7 +510,7 @@ static int bluesleep_write_proc_lpm(struct file *file, const char *buffer,
 			bluesleep_start();
 		}
 	} else if (b == '2') {
-		BT_ERR("(bluesleep_write_proc_lpm) don`t control ext_wake & uart clk");
+		BT_DBG("(bluesleep_write_proc_lpm) don`t control ext_wake & uart clk");
 		if(bt_enabled) {
 			bt_enabled = false;
 			bluesleep_abnormal_stop();
@@ -772,7 +774,7 @@ static int bluesleep_probe(struct platform_device *pdev)
 
 	/* configure host_wake as input */
 #if !defined(CONFIG_BT_BCM4354)
-	BT_ERR("configure input direction\n");
+	BT_DBG("configure input direction\n");
 	gpio_tlmm_config(GPIO_CFG(bsi->host_wake, 0, GPIO_CFG_INPUT,
 					GPIO_CFG_NO_PULL, GPIO_CFG_16MA), GPIO_CFG_ENABLE);
 	ret = gpio_direction_input(bsi->host_wake);

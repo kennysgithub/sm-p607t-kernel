@@ -1780,7 +1780,7 @@ void tkey_led_enables(int level)
 	struct qpnp_led_data *led_array;
 
 	led_array = dev_get_drvdata(led_dev);
-	printk(KERN_INFO "%s: touchkey LED level : %d\n", __func__, level);
+	pr_debug("%s: touchkey LED level : %d\n", __func__, level);
 	if (!led_array) {
 		printk(KERN_INFO "%s: led_array is NULL\n", __func__);
 		return;

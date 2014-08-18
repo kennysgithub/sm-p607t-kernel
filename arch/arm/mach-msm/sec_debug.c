@@ -1606,7 +1606,7 @@ void sec_debug_check_crash_key(unsigned int code, int value)
         static enum { NO, T1, T2, T3} state_tsp = NO;
 #endif
 
-	printk(KERN_ERR "%s code %d value %d state %d enable %d\n", __func__, code, value, state, enable);
+	pr_debug("%s code %d value %d state %d enable %d\n", __func__, code, value, state, enable);
 
 	if (code == KEY_POWER) {
 		if (value)

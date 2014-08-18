@@ -613,7 +613,7 @@ static int bma255_open_calibration(struct bma255_p *data)
 		data->caldata.y = 0;
 		data->caldata.z = 0;
 
-		pr_err("[SENSOR]: %s - No Calibration\n", __func__);
+		pr_debug("[SENSOR]: %s - No Calibration\n", __func__);
 
 		return ret;
 	}
