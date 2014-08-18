@@ -12,10 +12,7 @@
 
 #ifdef DEBUG
 #define pr_fmt(fmt) "MSM-CPP %s:%d " fmt, __func__, __LINE__
-#else
-#define pr_fmt(fmt) ""
 #endif
-
 
 #include <linux/delay.h>
 #include <linux/clk.h>
@@ -723,9 +720,9 @@ static int cpp_init_hardware(struct cpp_device *cpp_dev)
 	  clk_put(cpp_dev->cpp_clk[7]);
 	  goto remap_failed;
 	}
-	
+
 	usleep_range(10000, 12000);
-	
+
 	rc = clk_reset(cpp_dev->cpp_clk[7], CLK_RESET_DEASSERT);
 	  if (rc) {
 		pr_err("%s:micro_iface_clk assert failed\n", __func__);
@@ -1285,7 +1282,7 @@ static void msm_cpp_do_timeout_work(struct work_struct *work)
 				cpp_timers[set_timer_idx].data.cpp_dev->base);
 	}
 	cpp_timers[1 - set_timer_idx].data.cpp_dev->timeout_trial_cnt++;
-	mutex_unlock(&cpp_timers[0].data.cpp_dev->mutex);	
+	mutex_unlock(&cpp_timers[0].data.cpp_dev->mutex);
 }
 
 void cpp_timer_callback(unsigned long data)
@@ -1459,7 +1456,7 @@ static int msm_cpp_cfg(struct cpp_device *cpp_dev,
 		/* set duplicate enable bit */
 		cpp_frame_msg[5] |= 0x1;
 	}
-  
+
 	num_stripes = ((cpp_frame_msg[12] >> 20) & 0x3FF) +
 		((cpp_frame_msg[12] >> 10) & 0x3FF) +
 		(cpp_frame_msg[12] & 0x3FF);
@@ -1844,7 +1841,7 @@ long msm_cpp_subdev_ioctl(struct v4l2_subdev *sd,
 		kfree(event_qcmd);
 		break;
 	}
-	
+
 	case VIDIOC_MSM_CPP_SET_CLOCK: {
 		long clock_rate = 0;
 		if (ioctl_ptr->len == 0 || (ioctl_ptr->len > sizeof(long))) {

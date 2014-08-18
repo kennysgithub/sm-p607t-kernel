@@ -625,7 +625,7 @@ static int msm_ext_spkramp_event(struct snd_soc_dapm_widget *w,
 static int msm_ext_spkramp_event(struct snd_soc_dapm_widget *w,
 			     struct snd_kcontrol *k, int event)
 {
-	pr_info("%s() : control =%d\n", __func__, event);
+	pr_debug("%s() : control =%d\n", __func__, event);
 
 	gpio_direction_output(spkamp_en_gpio,
 			SND_SOC_DAPM_EVENT_ON(event));
@@ -726,7 +726,7 @@ static int msm8974_mclk_event(struct snd_soc_dapm_widget *w,
 static int msm_mainmic_bias_event(struct snd_soc_dapm_widget *w,
 	struct snd_kcontrol *k, int event)
 {
-	pr_info("%s : Event %d,  SND_SOC_DAPM:%d\n",
+	pr_debug("%s : Event %d,  SND_SOC_DAPM:%d\n",
 		__func__, (event), SND_SOC_DAPM_EVENT_ON(event));
 
 	if (mainmic_bias_gpio < 0) {
@@ -741,7 +741,7 @@ static int msm_mainmic_bias_event(struct snd_soc_dapm_widget *w,
 		if(main_mic_delay != 100)
 			main_mic_delay *= 50;
 		msleep(main_mic_delay);
-		pr_info("%s: main_mic_delay = %d\n", __func__, main_mic_delay);
+		pr_debug("%s: main_mic_delay = %d\n", __func__, main_mic_delay);
 		main_mic_delay = 0;
 	}
 
@@ -875,7 +875,7 @@ static int slim0_rx_sample_rate_put(struct snd_kcontrol *kcontrol,
 		slim0_rx_sample_rate = SAMPLING_RATE_48KHZ;
 	}
 
-	pr_info("%s: slim0_rx_sample_rate = %d\n", __func__,
+	pr_debug("%s: slim0_rx_sample_rate = %d\n", __func__,
 			slim0_rx_sample_rate);
 
 	return 0;
@@ -1140,7 +1140,7 @@ static int msm8974_auxpcm_rate_put(struct snd_kcontrol *kcontrol,
 		msm_btsco_rate = BTSCO_RATE_8KHZ;
 		break;
 	}
-	pr_info("%s: BT sample rate = %d ====\n",__func__, msm8974_auxpcm_rate);
+	pr_debug("%s: BT sample rate = %d ====\n",__func__, msm8974_auxpcm_rate);
 	return 0;
 }
 
@@ -1167,7 +1167,7 @@ static int main_mic_delay_put(struct snd_kcontrol *kcontrol,
 static int speaker_status_get(struct snd_kcontrol *kcontrol,
 	struct snd_ctl_elem_value *ucontrol)
 {
-	pr_info("%s: speaker_status = %d\n", __func__, speaker_status);
+	pr_debug("%s: speaker_status = %d\n", __func__, speaker_status);
 	ucontrol->value.integer.value[0] = speaker_status;
 	return 0;
 }
@@ -1176,7 +1176,7 @@ static int speaker_status_put(struct snd_kcontrol *kcontrol,
 	struct snd_ctl_elem_value *ucontrol)
 {
 	speaker_status = ucontrol->value.integer.value[0];
-	pr_info("%s: speaker_status = %d\n", __func__, speaker_status);
+	pr_debug("%s: speaker_status = %d\n", __func__, speaker_status);
 	return 1;
 }
 #endif
@@ -1267,7 +1267,7 @@ static int msm8974_hdmi_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 	struct snd_interval *channels = hw_param_interval(params,
 					SNDRV_PCM_HW_PARAM_CHANNELS);
 
-	pr_info("%s channels->min %u channels->max %u ()\n", __func__,
+	pr_debug("%s channels->min %u channels->max %u ()\n", __func__,
 			channels->min, channels->max);
 
 	param_set_mask(params, SNDRV_PCM_HW_PARAM_FORMAT,
@@ -1463,7 +1463,7 @@ static int msm_slim_0_rx_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 	rate->min = rate->max = slim0_rx_sample_rate;
 	channels->min = channels->max = msm_slim_0_rx_ch;
 
-	 pr_info("%s: format = %d, rate = %d, channels = %d\n",
+	 pr_debug("%s: format = %d, rate = %d, channels = %d\n",
 			  __func__, params_format(params), params_rate(params),
 			  msm_slim_0_rx_ch);
 
@@ -1483,7 +1483,7 @@ static int msm_slim_0_tx_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 	rate->min = rate->max = 48000;
 	channels->min = channels->max = msm_slim_0_tx_ch;
 
-	 pr_info("%s: format = %d, rate = %d, channels = %d\n",
+	 pr_debug("%s: format = %d, rate = %d, channels = %d\n",
 			  __func__, params_format(params), params_rate(params),
 			  msm_slim_0_tx_ch);
 
@@ -1809,7 +1809,7 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 
 #if defined(CONFIG_MACH_KLTE_KOR)
 	if (system_rev >= 13) {
-		pr_info("%s: USE MBHC revision %d\n", __func__, system_rev);
+		pr_debug("%s: USE MBHC revision %d\n", __func__, system_rev);
 		/* start mbhc */
 		mbhc_cfg.calibration = def_taiko_mbhc_cal();
 		if (mbhc_cfg.calibration) {
@@ -1823,7 +1823,7 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 	}
 #elif defined(CONFIG_MACH_KLTE_JPN)
 	if (system_rev >= 11) {
-		pr_info("%s: USE MBHC revision %d\n", __func__, system_rev);
+		pr_debug("%s: USE MBHC revision %d\n", __func__, system_rev);
 		/* start mbhc */
 		mbhc_cfg.calibration = def_taiko_mbhc_cal();
 		if (mbhc_cfg.calibration) {
@@ -2010,7 +2010,7 @@ static int msm_snd_hw_params(struct snd_pcm_substream *substream,
 			user_set_tx_ch = params_channels(params);
 		else
 			user_set_tx_ch = tx_ch_cnt;
-		pr_info("%s: msm_slim_0_tx_ch(%d)user_set_tx_ch(%d)tx_ch_cnt(%d)\n",
+		pr_debug("%s: msm_slim_0_tx_ch(%d)user_set_tx_ch(%d)tx_ch_cnt(%d)\n",
 			 __func__, msm_slim_0_tx_ch, user_set_tx_ch, tx_ch_cnt);
 
 		ret = snd_soc_dai_set_channel_map(cpu_dai,
@@ -3209,7 +3209,7 @@ static __devinit int msm8974_asoc_machine_probe(struct platform_device *pdev)
 			"qcom,mainmic-bias-gpio",
 			pdev->dev.of_node->full_name);
 	} else {
-		pr_info("%s : mic bias = %d\n", __func__, mainmic_bias_gpio);
+		pr_debug("%s : mic bias = %d\n", __func__, mainmic_bias_gpio);
 
 		ret = msm8974_prepare_mainmic();
 		if (ret) {
@@ -3222,7 +3222,7 @@ static __devinit int msm8974_asoc_machine_probe(struct platform_device *pdev)
 
 #if defined(CONFIG_MACH_KLTE_KOR) || defined(CONFIG_MACH_KLTE_JPN)
 	/* enable FSA8039 for jack detection */
-	pr_info("%s: Check to enable FSA8039\n", __func__);
+	pr_debug("%s: Check to enable FSA8039\n", __func__);
 	fsa_en_gpio = of_get_named_gpio(pdev->dev.of_node,
 					"qcom,earjack-fsa_en-gpio", 0);
 	if (fsa_en_gpio < 0)
@@ -3231,7 +3231,7 @@ static __devinit int msm8974_asoc_machine_probe(struct platform_device *pdev)
 	if (fsa_en_gpio < 0)
 		pr_info("%s: No support FSA8039 chip\n", __func__);
 	else
-		pr_info("%s: earjack-fsa_en-gpio =%d\n",
+		pr_debug("%s: earjack-fsa_en-gpio =%d\n",
 						__func__, fsa_en_gpio);
 
 	if (fsa_en_gpio > 0) {
@@ -3262,7 +3262,7 @@ static __devinit int msm8974_asoc_machine_probe(struct platform_device *pdev)
 			"qcom,micbias-en-msm-gpio",
 			pdev->dev.of_node->full_name);
 	} else {
-		pr_info("%s : micbias en msm = %d\n", __func__, micbias_en_msm_gpio);
+		pr_debug("%s : micbias en msm = %d\n", __func__, micbias_en_msm_gpio);
 
 		ret = msm8974_prepare_micbias_to_codec();
 		if (ret) {
@@ -3280,7 +3280,7 @@ static __devinit int msm8974_asoc_machine_probe(struct platform_device *pdev)
 			"qcom,spkamp-en-gpio",
 			pdev->dev.of_node->full_name);
 	} else {
-		pr_info("%s : spkamp_en_ gpio = %d\n", __func__, spkamp_en_gpio);
+		pr_debug("%s : spkamp_en_ gpio = %d\n", __func__, spkamp_en_gpio);
 
 		ret = msm8974_prepare_spkamp();
 		if (ret) {

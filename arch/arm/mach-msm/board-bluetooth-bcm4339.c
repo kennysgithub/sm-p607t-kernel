@@ -155,19 +155,19 @@ static int bcm4339_bt_rfkill_set_power(void *data, bool blocked)
 #endif
 
     if (!blocked) {
-        pr_err("[BT] Bluetooth Power On.\n");
+        pr_info("[BT] Bluetooth Power On.\n");
 
         gpio_set_value(get_gpio_hwrev(BT_WAKE), 1);
 
         if (gpio_get_value(get_gpio_hwrev(GPIO_BT_HOST_WAKE)) == 0)
-            pr_err("[BT] BT_HOST_WAKE is low.\n");
+            pr_debug("[BT] BT_HOST_WAKE is low.\n");
 
 #ifdef BT_UART_CFG
         for (pin = 0; pin < ARRAY_SIZE(bt_uart_on_table); pin++) {
             rc = gpio_tlmm_config(bt_uart_on_table[pin],
                 GPIO_CFG_ENABLE);
             if (rc < 0)
-                pr_err("[BT] %s: gpio_tlmm_config(%#x)=%d\n",
+                pr_debug("[BT] %s: gpio_tlmm_config(%#x)=%d\n",
                     __func__, bt_uart_on_table[pin], rc);
         }
 #endif
@@ -179,11 +179,11 @@ static int bcm4339_bt_rfkill_set_power(void *data, bool blocked)
             rc = gpio_tlmm_config(bt_uart_off_table[pin],
                 GPIO_CFG_ENABLE);
             if (rc < 0)
-                pr_err("%s: gpio_tlmm_config(%#x)=%d\n",
+                pr_debug("%s: gpio_tlmm_config(%#x)=%d\n",
                     __func__, bt_uart_off_table[pin], rc);
         }
 #endif
-        pr_err("[BT] Bluetooth Power Off.\n");
+        pr_info("[BT] Bluetooth Power Off.\n");
 
         gpio_set_value(get_gpio_hwrev(BT_EN), 0);
 		gpio_set_value(get_gpio_hwrev(BT_WAKE), 0);
@@ -208,7 +208,7 @@ void __init msm8974_bt_init(void)
     int err = 0;
 #ifdef CONFIG_MACH_MONTBLANC
     int rc = 0;
-    pr_err("[BT] msm8974_bt_init(%d)\n", system_rev);
+    pr_debug("[BT] msm8974_bt_init(%d)\n", system_rev);
 
     if (system_rev < 2) {
         rc = gpio_request(get_gpio_hwrev(BTWIFI_LDO_EN), "btwifi_ldoen_gpio");
@@ -275,7 +275,7 @@ static int bcm4339_bluetooth_probe(struct platform_device *pdev)
     for (pin = 0; pin < ARRAY_SIZE(bt_uart_off_table); pin++) {
         rc = gpio_tlmm_config(bt_uart_off_table[pin], GPIO_CFG_ENABLE);
         if (rc < 0)
-            pr_err("%s: gpio_tlmm_config(%#x)=%d\n",
+            pr_debug("%s: gpio_tlmm_config(%#x)=%d\n",
                 __func__, bt_uart_off_table[pin], rc);
     }
 #endif
