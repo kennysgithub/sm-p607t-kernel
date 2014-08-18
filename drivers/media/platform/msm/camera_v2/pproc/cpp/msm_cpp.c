@@ -119,7 +119,7 @@ static void msm_enqueue(struct msm_device_queue *queue,
 	queue->len++;
 	if (queue->len > queue->max) {
 		queue->max = queue->len;
-		pr_info("queue %s new max is %d\n", queue->name, queue->max);
+		pr_debug("queue %s new max is %d\n", queue->name, queue->max);
 	}
 	list_add_tail(entry, &queue->list);
 	wake_up(&queue->wait);
@@ -480,7 +480,7 @@ void cpp_release_ion_client(struct kref *ref)
 {
 	struct cpp_device *cpp_dev = container_of(ref,
 		struct cpp_device, refcount);
-	pr_err("Calling ion_client_destroy\n");
+	pr_debug("Calling ion_client_destroy\n");
 	ion_client_destroy(cpp_dev->client);
 }
 
@@ -786,30 +786,30 @@ static int cpp_init_hardware(struct cpp_device *cpp_dev)
 	cpp_dev->taskletq_idx = 0;
 	atomic_set(&cpp_dev->irq_cnt, 0);
 	msm_cpp_create_buff_queue(cpp_dev, MSM_CPP_MAX_BUFF_QUEUE);
-	pr_err("stream_cnt:%d\n", cpp_dev->stream_cnt);
+	pr_debug("stream_cnt:%d\n", cpp_dev->stream_cnt);
 	cpp_dev->stream_cnt = 0;
 	if (cpp_dev->is_firmware_loaded == 1) {
-		pr_err("cpp_dbg: is_firmware_loaded==1\n");
+		pr_debug("cpp_dbg: is_firmware_loaded==1\n");
 		disable_irq(cpp_dev->irq->start);
-		pr_err("cpp_dbg: disable_irq e\n");
+		pr_debug("cpp_dbg: disable_irq e\n");
 		//msm_cpp_boot_hw(cpp_dev);
 
-		pr_err("cpp_dbg: cpp_load_fw e\n");
+		pr_debug("cpp_dbg: cpp_load_fw e\n");
 		cpp_load_fw(cpp_dev, NULL);
-		pr_err("cpp_dbg: cpp_load_fw x\n");
+		pr_debug("cpp_dbg: cpp_load_fw x\n");
 
 		enable_irq(cpp_dev->irq->start);
-		pr_err("cpp_dbg: enable_irq e\n");
+		pr_debug("cpp_dbg: enable_irq e\n");
 
 		msm_camera_io_w_mb(0x7C8, cpp_dev->base +
 			MSM_CPP_MICRO_IRQGEN_MASK);
-		pr_err("cpp_dbg: MSM_CPP_MICRO_IRQGEN_MASK\n");
+		pr_debug("cpp_dbg: MSM_CPP_MICRO_IRQGEN_MASK\n");
 
 		msm_camera_io_w_mb(0xFFFF, cpp_dev->base +
 			MSM_CPP_MICRO_IRQGEN_CLR);
-		pr_err("cpp_dbg: MSM_CPP_MICRO_IRQGEN_CLR\n");
+		pr_debug("cpp_dbg: MSM_CPP_MICRO_IRQGEN_CLR\n");
 	}
-	pr_err("cpp_dbg: end of cpp_init_hardware\n");
+	pr_debug("cpp_dbg: end of cpp_init_hardware\n");
 	return rc;
 req_irq_fail:
 	iounmap(cpp_dev->cpp_hw_base);
@@ -936,18 +936,18 @@ static void cpp_load_fw(struct cpp_device *cpp_dev, char *fw_name_bin)
 		msm_cpp_poll(cpp_dev->base, MSM_CPP_MSG_ID_CMD);
 	}
 
-	pr_err("cpp_dbg: Trigger MC to jump to start address\n");
+	pr_debug("cpp_dbg: Trigger MC to jump to start address\n");
 	/*Trigger MC to jump to start address*/
 	msm_cpp_write(MSM_CPP_CMD_EXEC_JUMP, cpp_dev->base);
 	msm_cpp_write(MSM_CPP_JUMP_ADDRESS, cpp_dev->base);
 
-	pr_err("cpp_dbg: msm_cpp_poll MSM_CPP_MSG_ID_CMD\n");
+	pr_debug("cpp_dbg: msm_cpp_poll MSM_CPP_MSG_ID_CMD\n");
 	msm_cpp_poll(cpp_dev->base, MSM_CPP_MSG_ID_CMD);
-	pr_err("cpp_dbg: msm_cpp_poll 0x1\n");
+	pr_debug("cpp_dbg: msm_cpp_poll 0x1\n");
 	msm_cpp_poll(cpp_dev->base, 0x1);
-	pr_err("cpp_dbg: msm_cpp_poll MSM_CPP_MSG_ID_JUMP_ACK\n");
+	pr_debug("cpp_dbg: msm_cpp_poll MSM_CPP_MSG_ID_JUMP_ACK\n");
 	msm_cpp_poll(cpp_dev->base, MSM_CPP_MSG_ID_JUMP_ACK);
-	pr_err("cpp_dbg: msm_cpp_poll MSM_CPP_MSG_ID_TRAILER\n");
+	pr_debug("cpp_dbg: msm_cpp_poll MSM_CPP_MSG_ID_TRAILER\n");
 	msm_cpp_poll(cpp_dev->base, MSM_CPP_MSG_ID_TRAILER);
 
 	/*Get Bootloader Version*/
@@ -1181,14 +1181,14 @@ static void msm_cpp_do_timeout_work(struct work_struct *work)
 
 	mutex_lock(&cpp_timers[0].data.cpp_dev->mutex);
 
-	pr_err("cpp_timer_callback called idx:%d. (jiffies=%lu)\n",
+	pr_debug("cpp_timer_callback called idx:%d. (jiffies=%lu)\n",
 		del_timer_idx, jiffies);
 	cpp_timers[del_timer_idx].used = 0;
 	cpp_timers[del_timer_idx].data.processed_frame = NULL;
 	del_timer_idx = 1 - del_timer_idx;
 
 	if (!work || !this_frame) {
-		pr_err("Invalid work:%p, this_frame:%p, del_idx:%d\n",
+		pr_debug("Invalid work:%p, this_frame:%p, del_idx:%d\n",
 			work, this_frame, del_timer_idx);
 			mutex_unlock(&cpp_timers[0].data.cpp_dev->mutex);
 		return;
@@ -1230,7 +1230,7 @@ static void msm_cpp_do_timeout_work(struct work_struct *work)
 	}
 
 	disable_irq(cpp_timers[del_timer_idx].data.cpp_dev->irq->start);
-	pr_err("Reloading firmware\n");
+	pr_debug("Reloading firmware\n");
 	cpp_load_fw(cpp_timers[del_timer_idx].data.cpp_dev, NULL);
 	pr_err("Firmware loading done\n");
 	enable_irq(cpp_timers[del_timer_idx].data.cpp_dev->irq->start);
@@ -1241,10 +1241,10 @@ static void msm_cpp_do_timeout_work(struct work_struct *work)
 
 	cpp_timers[set_timer_idx].data.processed_frame = this_frame;
 	cpp_timers[set_timer_idx].used = 1;
-	pr_err("ReInstalling cpp_timer %d\n", set_timer_idx);
+	pr_debug("ReInstalling cpp_timer %d\n", set_timer_idx);
 	setup_timer(&cpp_timers[set_timer_idx].cpp_timer, cpp_timer_callback,
 		(unsigned long)&cpp_timers[0]);
-	pr_err("Starting timer to fire in %d ms. (jiffies=%lu)\n",
+	pr_debug("Starting timer to fire in %d ms. (jiffies=%lu)\n",
 		CPP_CMD_TIMEOUT_MS, jiffies);
 	ret = mod_timer(&cpp_timers[set_timer_idx].cpp_timer,
 		jiffies + msecs_to_jiffies(CPP_CMD_TIMEOUT_MS));
@@ -1252,7 +1252,7 @@ static void msm_cpp_do_timeout_work(struct work_struct *work)
 		pr_err("error in mod_timer\n");
 
 	set_timer_idx = 1 - set_timer_idx;
-	pr_err("Rescheduling for identity=0x%x, frame_id=%03d",
+	pr_debug("Rescheduling for identity=0x%x, frame_id=%03d",
 		this_frame->identity, this_frame->frame_id);
 	msm_cpp_write(0x6, cpp_timers[set_timer_idx].data.cpp_dev->base);
 	for (i = 0; i < this_frame->msg_len; i++)
@@ -1263,10 +1263,10 @@ static void msm_cpp_do_timeout_work(struct work_struct *work)
 	if (second_frame != NULL) {
 		cpp_timers[set_timer_idx].data.processed_frame = second_frame;
 		cpp_timers[set_timer_idx].used = 1;
-		pr_err("ReInstalling cpp_timer %d\n", set_timer_idx);
+		pr_debug("ReInstalling cpp_timer %d\n", set_timer_idx);
 		setup_timer(&cpp_timers[set_timer_idx].cpp_timer, cpp_timer_callback,
 			(unsigned long)&cpp_timers[0]);
-		pr_err("Starting timer to fire in %d ms. (jiffies=%lu)\n",
+		pr_debug("Starting timer to fire in %d ms. (jiffies=%lu)\n",
 			CPP_CMD_TIMEOUT_MS, jiffies);
 		ret = mod_timer(&cpp_timers[set_timer_idx].cpp_timer,
 			jiffies + msecs_to_jiffies(CPP_CMD_TIMEOUT_MS));
@@ -1274,7 +1274,7 @@ static void msm_cpp_do_timeout_work(struct work_struct *work)
 			pr_err("error in mod_timer\n");
 
 		set_timer_idx = 1 - set_timer_idx;
-		pr_err("Rescheduling for identity=0x%x, frame_id=%03d",
+		pr_debug("Rescheduling for identity=0x%x, frame_id=%03d",
 			second_frame->identity, second_frame->frame_id);
 		msm_cpp_write(0x6, cpp_timers[set_timer_idx].data.cpp_dev->base);
 		for (i = 0; i < second_frame->msg_len; i++)
@@ -1731,7 +1731,7 @@ long msm_cpp_subdev_ioctl(struct v4l2_subdev *sd,
 			set_timer_idx = 0;
 		}
 		cpp_dev->stream_cnt++;
-		pr_err("stream_cnt:%d\n", cpp_dev->stream_cnt);
+		pr_debug("stream_cnt:%d\n", cpp_dev->stream_cnt);
 		break;
 	}
 	case VIDIOC_MSM_CPP_DEQUEUE_STREAM_BUFF_INFO: {
@@ -1778,7 +1778,7 @@ long msm_cpp_subdev_ioctl(struct v4l2_subdev *sd,
 			buff_queue_info->stream_id);
 		if (cpp_dev->stream_cnt > 0) {
 			cpp_dev->stream_cnt--;
-			pr_err("stream_cnt:%d\n", cpp_dev->stream_cnt);
+			pr_debug("stream_cnt:%d\n", cpp_dev->stream_cnt);
 			if (cpp_dev->stream_cnt == 0) {
 				rc = msm_isp_update_bandwidth(ISP_CPP, 0, 0);
 				if (rc < 0)

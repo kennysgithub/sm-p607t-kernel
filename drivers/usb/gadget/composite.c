@@ -873,7 +873,7 @@ int usb_remove_config(struct usb_composite_dev *cdev,
 {
 	unsigned long flags;
 
-	printk(KERN_DEBUG "usb: %s cdev->config=%p, config=%p\n",
+	pr_debug( "usb: %s cdev->config=%p, config=%p\n",
 			__func__, cdev->config, config);
 	spin_lock_irqsave(&cdev->lock, flags);
 
@@ -1209,7 +1209,7 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 
 			value = min(w_length, (u16) sizeof cdev->desc);
 			memcpy(req->buf, &cdev->desc, value);
-			printk(KERN_DEBUG "usb: GET_DES\n");
+			pr_debug( "usb: GET_DES\n");
 			break;
 		case USB_DT_DEVICE_QUALIFIER:
 			if (!gadget_is_dualspeed(gadget) ||
@@ -1276,7 +1276,7 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 		spin_lock(&cdev->lock);
 		value = set_config(cdev, ctrl, w_value);
 		spin_unlock(&cdev->lock);
-		printk(KERN_DEBUG "usb: SET_CON\n");
+		pr_debug( "usb: SET_CON\n");
 #ifdef CONFIG_USB_ANDROID_SAMSUNG_COMPOSITE
 		/* USB3.0 ch9 set configuration test issue for multi-config */
 		if (value == 0)
@@ -1291,7 +1291,7 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 				pr_info("%s sec_qcom_usb_rdrv = %d, disable\n",
 						__func__,
 						sec_qcom_usb_rdrv);
-				printk(KERN_INFO "Redriver OFF in Mac OS\n");
+				pr_info("Redriver OFF in Mac OS\n");
 			}
 		}
 #endif
@@ -1500,7 +1500,7 @@ static void composite_disconnect(struct usb_gadget *gadget)
 	/* REVISIT:  should we have config and device level
 	 * disconnect callbacks?
 	 */
-	printk(KERN_DEBUG "usb: %s\n", __func__);
+	pr_debug( "usb: %s\n", __func__);
 	spin_lock_irqsave(&cdev->lock, flags);
 	if (cdev->config)
 		reset_config(cdev);
@@ -1631,9 +1631,9 @@ static int composite_bind(struct usb_gadget *gadget)
 	if (bcdDevice)
 		cdev->desc.bcdDevice = cpu_to_le16(bcdDevice);
 
-	printk(KERN_DEBUG "usb: %s idVendor=0x%x, idProduct=0x%x\n",
+	pr_debug( "usb: %s idVendor=0x%x, idProduct=0x%x\n",
 			__func__, idVendor, idProduct);
-	printk(KERN_DEBUG "usb: %s bcdDevice=0x%x\n", __func__, bcdDevice);
+	pr_debug( "usb: %s bcdDevice=0x%x\n", __func__, bcdDevice);
 
 	/* string overrides */
 	if (iManufacturer || !cdev->desc.iManufacturer) {
@@ -1650,7 +1650,7 @@ static int composite_bind(struct usb_gadget *gadget)
 			override_id(cdev, &cdev->desc.iManufacturer);
 	}
 
-	printk(KERN_DEBUG "usb: %s composite_manufacturer=%s\n",
+	pr_debug( "usb: %s composite_manufacturer=%s\n",
 			__func__, composite_manufacturer);
 
 	if (iProduct || (!cdev->desc.iProduct && composite->iProduct))
