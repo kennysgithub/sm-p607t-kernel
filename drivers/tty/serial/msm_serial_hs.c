@@ -1313,7 +1313,7 @@ static void msm_hs_submit_tx_locked(struct uart_port *uport)
 	src_addr = tx->dma_base + tx_buf->tail;
 
 	if (pdev->id == 0 && tx_count == 4 && buff[0] == 0x1 && buff[1] == 0x3 && buff[2] == 0xc && buff[3] == 0x0) {
-		printk(KERN_ERR "(msm_serial_hs) hci_reset was received at ttyHS0 port\n");
+		pr_debug("(msm_serial_hs) hci_reset was received at ttyHS0 port\n");
 	}
 
 	/* Mask the src_addr to align on a cache

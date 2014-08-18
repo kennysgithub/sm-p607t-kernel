@@ -1831,7 +1831,7 @@ static int dwc3_msm_suspend(struct dwc3_msm *mdwc)
 #endif
 
 	if (atomic_read(&mdwc->in_lpm)) {
-		dev_info(mdwc->dev, "%s: Already suspended\n", __func__);
+		dev_dbg(mdwc->dev, "%s: Already suspended\n", __func__);
 		return 0;
 	}
 
@@ -1959,7 +1959,7 @@ static int dwc3_msm_suspend(struct dwc3_msm *mdwc)
 	pm_relax(mdwc->dev);
 	atomic_set(&mdwc->in_lpm, 1);
 
-	dev_info(mdwc->dev, "DWC3 in low power mode\n");
+	dev_dbg(mdwc->dev, "DWC3 in low power mode\n");
 
 	if (mdwc->hs_phy_irq) {
 		enable_irq(mdwc->hs_phy_irq);
@@ -1985,7 +1985,7 @@ static int dwc3_msm_resume(struct dwc3_msm *mdwc)
 #endif
 
 	if (!atomic_read(&mdwc->in_lpm)) {
-		dev_info(mdwc->dev, "%s: Already resumed\n", __func__);
+		dev_dbg(mdwc->dev, "%s: Already resumed\n", __func__);
 		return 0;
 	}
 
@@ -2113,7 +2113,7 @@ static int dwc3_msm_resume(struct dwc3_msm *mdwc)
 	if ((mdwc->hs_phy_irq && dcp) || !mdwc->vbus_active) // add SAMSUNG
 		enable_irq_wake(mdwc->hs_phy_irq);
 
-	dev_info(mdwc->dev, "DWC3 exited from low power mode\n");
+	dev_dbg(mdwc->dev, "DWC3 exited from low power mode\n");
 
 	return 0;
 }
@@ -2150,7 +2150,7 @@ static void dwc3_resume_work(struct work_struct *w)
 #ifdef CONFIG_USB_DEBUG_DETEAILED_LOG
 	dev_info(mdwc->dev, "%s: dwc3 resume work\n", __func__);
 #else
-	dev_info(mdwc->dev, "%s\n", __func__);
+	dev_dbg(mdwc->dev, "%s\n", __func__);
 #endif
 	/* handle any event that was queued while work was already running */
 	if (!atomic_read(&mdwc->in_lpm)) {
@@ -2159,7 +2159,7 @@ static void dwc3_resume_work(struct work_struct *w)
 #else
 		dev_dbg(mdwc->dev, "%s: notifying xceiv event\n", __func__);
 #endif
-		dev_info(mdwc->dev, "%s: already running\n", __func__);
+		dev_dbg(mdwc->dev, "%s: already running\n", __func__);
 		if (mdwc->otg_xceiv) {
 			dwc3_wait_for_ext_chg_done(mdwc);
 			mdwc->ext_xceiv.notify_ext_events(mdwc->otg_xceiv->otg,
@@ -2170,10 +2170,10 @@ static void dwc3_resume_work(struct work_struct *w)
 
 	/* bail out if system resume in process, else initiate RESUME */
 	if (atomic_read(&mdwc->pm_suspended)) {
-		dev_info(mdwc->dev, "%s: mdwc->resume_pending true\n", __func__);
+		dev_dbg(mdwc->dev, "%s: mdwc->resume_pending true\n", __func__);
 		mdwc->resume_pending = true;
 	} else {
-		dev_info(mdwc->dev, "%s: pm_runtime_get_sync entered\n", __func__);
+		dev_dbg(mdwc->dev, "%s: pm_runtime_get_sync entered\n", __func__);
 		pm_runtime_get_sync(mdwc->dev);
 		if (mdwc->otg_xceiv)
 			mdwc->ext_xceiv.notify_ext_events(mdwc->otg_xceiv->otg,
@@ -2337,7 +2337,7 @@ static int dwc3_msm_power_set_property_usb(struct power_supply *psy,
 	/* Process PMIC notification in PRESENT prop */
 	case POWER_SUPPLY_PROP_PRESENT:
 		dev_dbg(mdwc->dev, "%s: notify xceiv event\n", __func__);
-		dev_info(mdwc->dev, "%s: !mdwc->ext_inuse(%d), mdwc->ext_xceiv.otg_capability(%d), !init(%d)\n",
+		dev_dbg(mdwc->dev, "%s: !mdwc->ext_inuse(%d), mdwc->ext_xceiv.otg_capability(%d), !init(%d)\n",
 			__func__, !mdwc->ext_inuse, mdwc->ext_xceiv.otg_capability, !init);
 		if (mdwc->otg_xceiv && !mdwc->ext_inuse &&
 		    (mdwc->ext_xceiv.otg_capability || !init)) {
@@ -2346,7 +2346,7 @@ static int dwc3_msm_power_set_property_usb(struct power_supply *psy,
 			 * set debouncing delay to 120msec. Otherwise battery
 			 * charging CDP complaince test fails if delay > 120ms.
 			 */
-			dev_info(mdwc->dev, "%s: queue_delayed_work mdwc->resume_work\n", __func__);
+			dev_dbg(mdwc->dev, "%s: queue_delayed_work mdwc->resume_work\n", __func__);
 			queue_delayed_work(system_nrt_wq,
 							&mdwc->resume_work, 12);
 
