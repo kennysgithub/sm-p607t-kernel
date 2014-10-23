@@ -21,6 +21,7 @@
 #include <linux/notifier.h>
 
 #include "mdss_panel.h"
+#include "mdss_mdp_splash_logo.h"
 
 #define MSM_FB_DEFAULT_PAGE_SIZE 2
 #define MFD_KEY  0x11161126
@@ -78,6 +79,8 @@ struct disp_info_notify {
 	struct completion comp;
 	struct mutex lock;
 	int value;
+	int is_suspend;
+	int ref_count;
 };
 
 struct msm_sync_pt_data {
@@ -122,8 +125,10 @@ struct msm_mdp_interface {
 	int (*update_ad_input)(struct msm_fb_data_type *mfd);
 	int (*panel_register_done)(struct mdss_panel_data *pdata);
 	u32 (*fb_stride)(u32 fb_index, u32 xres, int bpp);
+	int (*splash_init_fnc)(struct msm_fb_data_type *mfd);
 	struct msm_sync_pt_data *(*get_sync_fnc)(struct msm_fb_data_type *mfd,
 				const struct mdp_buf_sync *buf_sync);
+	void (*check_dsi_status)(struct work_struct *work, uint32_t interval);
 	void *private1;
 };
 
@@ -187,7 +192,6 @@ struct msm_fb_data_type {
 	u32 bl_updated;
 	u32 bl_level_old;
 	struct mutex bl_lock;
-	struct mutex lock;
 	struct mutex power_state;
 	struct mutex ctx_lock;
 
@@ -223,6 +227,8 @@ struct msm_fb_data_type {
 	wait_queue_head_t kickoff_wait_q;
 	bool shutdown_pending;
 
+	struct msm_fb_splash_info splash_info;
+
 	wait_queue_head_t ioctl_q;
 	atomic_t ioctl_ref_cnt;
 
@@ -232,6 +238,10 @@ struct msm_fb_data_type {
 
 	u32 dcm_state;
 	struct list_head proc_list;
+
+	struct ion_client *fb_ion_client;
+	struct ion_handle *fb_ion_handle;
+
 	u32 wait_for_kickoff;
 
 	int blank_mode;
