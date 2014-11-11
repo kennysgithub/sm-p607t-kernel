@@ -496,7 +496,7 @@ void mdss_edp_set_backlight(struct mdss_panel_data *pdata, u32 bl_level)
 	int duty_period = 0;
 
 	if (bl_level < MIN_BL_LEVEL) {
-		pr_err("%s : bl_level(%d) is too low.. set to MIN(3)\n", __func__, bl_level);
+		pr_debug("%s : bl_level(%d) is too low.. set to MIN(3)\n", __func__, bl_level);
 		bl_level = MIN_BL_LEVEL;
 	}
 
@@ -520,7 +520,7 @@ void mdss_edp_set_backlight(struct mdss_panel_data *pdata, u32 bl_level)
 	duty_level = duty_level_table[bl_level];
 
 	if (edp_drv->duty_level == duty_level) {
-		pr_err("%s : same duty level..(%d) do not pwm_config..\n", __func__, duty_level);
+		pr_debug("%s : same duty level..(%d) do not pwm_config..\n", __func__, duty_level);
 		mutex_unlock(&brightness_mutex);
 		return;
 	}
